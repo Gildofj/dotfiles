@@ -20,7 +20,6 @@ return {
         ensure_installed = {
           "lua_ls",
           "tsserver",
-          -- "csharp_ls",
           "cssmodules_ls",
           "emmet_ls",
           "html",
@@ -30,6 +29,8 @@ return {
           "tailwindcss",
           "pyright",
           "astro",
+          "csharp_ls",
+          "omnisharp",
         },
         automatic_installation = true,
       })
@@ -48,6 +49,7 @@ return {
           "black", -- python formatter
           "pylint", -- python linter
         },
+        auto_update = true,
       })
     end,
   },
@@ -226,6 +228,12 @@ return {
         capabilities = capabilities,
         on_attach = on_attach,
         filetypes = { "astro" },
+      })
+
+      lspconfig.csharp_ls.setup({
+        capabilities = capabilities,
+        on_attach = on_attach,
+        filetypes = { "csharp" },
       })
     end,
   },
