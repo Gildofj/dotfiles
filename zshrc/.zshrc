@@ -25,7 +25,6 @@ SPACESHIP_PROMPT_ORDER=(
   dir           # Current directory section
   host          # Hostname section
   git           # Git section (git_branch + git_status)
-  hg            # Mercurial section (hg_branch  + hg_status)
   exec_time     # Execution time
   line_sep      # Line break
   #vi_mode       # Vi-mode indicator
@@ -61,8 +60,8 @@ _zsh_autosuggest_strategy_histdb_top() {
 ZSH_AUTOSUGGEST_STRATEGY=histdb_top
 
 # FZF
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-#eval $(fzf --zsh)
+# [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+eval $(fzf --zsh)
 export FZF_DEFAULT_COMMAND="fd --hidden --strip-cwd-prefix --exclude .git"
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 export FZF_ALT_C_COMMAND="fd --type=d --hidden --strip-cwd-prefix --exclude .git"
@@ -79,14 +78,13 @@ _fzf_compgen_dir() {
   fd type=d --hidden --exclude .git . "$1"
 }
 
-source ~/fzf-git.sh/fzf-git.sh
+# source ~/fzf-git.sh/fzf-git.sh
 
 # Aliases
-alias upgrade="~/scripts/upgrade.sh"
+# alias upgrade="~/scripts/upgrade.sh" # Just in Linux environments
 alias ls="exa --icons"
 alias cat="bat"
 alias c="clear"
-alias aptf="apt-fast"
 ## Github
 alias ga="git add ."
 alias gs="git status"
@@ -95,15 +93,16 @@ alias gp="git push"
 alias gpoh="git push origin HEAD"
 
 gh() {
-    if [ -z "$1" ]; then
-        echo "Por favor, forneça uma mensagem de commit."
-    else
-        ga && gc "$1" && gpoh
-    fi
+  local msg="$*"
+  if [ -z "$msg" ]; then
+    echo "Por favor, forneça uma mensagem de commit."
+  else
+    ga && gc "$msg" && gpoh
+  fi
 }
 
-# TheFuck (Na versão 24.04 do ubuntu não esta funcionando corretamente)
-# eval $(thefuck --alias) 
+# TheFuck
+eval $(thefuck --alias)
 
 # start new session of tmux
 # if command -v tmux &> /dev/null && [ -z "$TMUX" ]; then
@@ -111,71 +110,3 @@ gh() {
 #   wait
 #   tmux new-session
 # fi
-
-# ------------------------------------------------ BASH_CONFIGS_DEFAULT -----------------------------------------------------
-
-# set variable identifying the chroot you work in (used in the prompt below)
-if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
-    debian_chroot=$(cat /etc/debian_chroot)
-fi
-
-# set a fancy prompt (non-color, unless we know we "want" color)
-case "$TERM" in
-    xterm-color|*-256color) color_prompt=yes;;
-esac
-
-# uncomment for a colored prompt, if the terminal has the capability; turned
-# off by default to not distract the user: the focus in a terminal window
-# should be on the output of commands, not on the prompt
-#force_color_prompt=yes
-
-if [ -n "$force_color_prompt" ]; then
-    if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
-	# We have color support; assume it's compliant with Ecma-48
-	# (ISO/IEC-6429). (Lack of such support is extremely rare, and such
-	# a case would tend to support setf rather than setaf.)
-	color_prompt=yes
-    else
-	color_prompt=
-    fi
-fi
-
-if [ "$color_prompt" = yes ]; then
-    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
-else
-    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
-fi
-unset color_prompt force_color_prompt
-
-# If this is an xterm set the title to user@host:dir
-case "$TERM" in
-xterm*|rxvt*)
-    PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]$PS1"
-    ;;
-*)
-    ;;
-esac
-
-# enable color support of ls and also add handy aliases
-if [ -x /usr/bin/dircolors ]; then
-    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
-
-    alias grep='grep --color=auto'
-    alias fgrep='fgrep --color=auto'
-    alias egrep='egrep --color=auto'
-fi
-
-# colored GCC warnings and errors
-#export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
-
-# some more ls aliases
-alias ll='ls -alF'
-alias la='ls -A'
-alias l='ls -CF'
-
-# Add an "alert" alias for long running commands.  Use like so:
-#   sleep 10; alert
-alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'
-
-# Generated for envman. Do not edit.
-[ -s "$HOME/.config/envman/load.sh" ] && source "$HOME/.config/envman/load.sh"
