@@ -19,7 +19,7 @@ return {
       require("mason-lspconfig").setup({
         ensure_installed = {
           "lua_ls",
-          "tsserver",
+          "ts_ls",
           "cssmodules_ls",
           "emmet_ls",
           "html",
@@ -148,7 +148,7 @@ return {
         },
       })
 
-      lspconfig.tsserver.setup({
+      lspconfig.ts_ls.setup({
         capabilities = capabilities,
         on_attach = on_attach,
       })

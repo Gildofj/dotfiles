@@ -48,6 +48,7 @@ return {
               ".eslintrc.js",
               ".eslintrc.cjs",
               ".eslintrc.json",
+              "eslint.config.mjs",
             }) -- only enable if root has .eslintrc.js or .eslintrc.cjs
           end,
         }),
