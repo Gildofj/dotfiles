@@ -36,12 +36,33 @@ return {
       -- setup formatters & linters
       sources = {
         --  to disable file types use
-        formatting.prettier, -- js/ts formatter
+        formatting.eslint.with({
+          prefer_local = "node_modules/.bin",
+          condition = function(utils)
+            return not utils.root_has_file({
+              ".prettierrc",
+              ".prettierrc.js",
+              ".prettierrc.cjs",
+              ".prettierrc.json",
+            })
+          end,
+        }), -- js/ts formatter eslint
+        formatting.prettier.with({
+          prefer_local = "node_modules/.bin",
+          condition = function(utils)
+            return utils.root_has_file({
+              ".prettierrc",
+              ".prettierrc.js",
+              ".prettierrc.cjs",
+              ".prettierrc.json",
+            })
+          end,
+        }), -- js/ts formatter
         formatting.stylua, -- lua formatter
         formatting.isort, -- python formatter
         formatting.black, -- python formatter
-        diagnostics.pylint, -- python linter
-        diagnostics.eslint.with({ -- js/ts linter
+        diagnostics.eslint.with({ -- js/ts linter eslint
+          prefer_local = "node_modules/.bin",
           condition = function(utils)
             return utils.root_has_file({
               ".eslintrc",
@@ -52,6 +73,7 @@ return {
             })
           end,
         }),
+        diagnostics.pylint, -- python linter
       },
       -- configure format on save
       on_attach = function(current_client, bufnr)
