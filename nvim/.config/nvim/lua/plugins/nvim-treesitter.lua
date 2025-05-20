@@ -1,14 +1,15 @@
 return {
   "nvim-treesitter/nvim-treesitter",
   build = ":TSUpdate",
+  event = { "BufReadPre", "BufNewFile" },
   dependencies = {
-    -- "nvim-treesitter/nvim-treesitter-textobjects",
+    "nvim-treesitter/nvim-treesitter-textobjects",
     "windwp/nvim-ts-autotag",
   },
   config = function()
     local config = require("nvim-treesitter.configs")
     config.setup({
-      ensure_installed = { "astro", "tsx", "typescript", "html", "lua" },
+      ensure_installed = { "astro", "tsx", "typescript", "javascript", "html", "lua" },
       auto_install = true,
       highlight = { enable = true },
       indent = { enable = true },
@@ -23,6 +24,7 @@ return {
         },
       },
     })
+
     -- enable nvim-ts-context-commentstring plugin for commenting tsx and jsx
     require("ts_context_commentstring").setup({})
 
