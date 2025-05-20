@@ -24,13 +24,8 @@ return {
           "emmet_ls",
           "html",
           "jsonls",
-          "jdtls",
-          "kotlin_language_server",
           "tailwindcss",
-          "pyright",
           "astro",
-          "csharp_ls",
-          "omnisharp",
         },
         automatic_installation = true,
       })
@@ -41,9 +36,9 @@ return {
     config = function()
       require("mason-tool-installer").setup({
         ensure_installed = {
-          "prettier", -- prettier formatter
+          "prettierd", -- prettier formatter
           "stylua", -- lua formatter
-          "eslint", -- js/ts linter
+          "eslint_d", -- js/ts linter
           "rust-analyzer", -- rust formatter
           "isort", -- python formatter
           "black", -- python formatter
@@ -149,11 +144,6 @@ return {
       })
 
       lspconfig.ts_ls.setup({
-        capabilities = capabilities,
-        on_attach = on_attach,
-      })
-
-      lspconfig.csharp_ls.setup({
         capabilities = capabilities,
         on_attach = on_attach,
       })

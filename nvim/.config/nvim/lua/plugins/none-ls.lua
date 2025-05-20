@@ -3,20 +3,20 @@ return {
   lazy = true,
   event = { "BufReadPre", "BufNewFile" }, -- to enable uncomment this
   dependencies = {
+    "nvim-lua/plenary.nvim",
+    "nvimtools/none-ls-extras.nvim",
     "jay-babu/mason-null-ls.nvim",
   },
   config = function()
     local mason_null_ls = require("mason-null-ls")
-
     local null_ls = require("null-ls")
-
     local null_ls_utils = require("null-ls.utils")
 
     mason_null_ls.setup({
       ensure_installed = {
-        "prettier", -- prettier formatter
+        "prettierd", -- prettier formatter
         "stylua", -- lua formatter
-        "eslint", -- js linter
+        "eslint_d", -- js linter
         "black", -- python formatter
         "pylint", -- python linter
       },
@@ -36,33 +36,12 @@ return {
       -- setup formatters & linters
       sources = {
         --  to disable file types use
-        formatting.eslint.with({
-          prefer_local = "node_modules/.bin",
-          condition = function(utils)
-            return not utils.root_has_file({
-              ".prettierrc",
-              ".prettierrc.js",
-              ".prettierrc.cjs",
-              ".prettierrc.json",
-            })
-          end,
-        }), -- js/ts formatter eslint
-        formatting.prettier.with({
-          prefer_local = "node_modules/.bin",
-          condition = function(utils)
-            return utils.root_has_file({
-              ".prettierrc",
-              ".prettierrc.js",
-              ".prettierrc.cjs",
-              ".prettierrc.json",
-            })
-          end,
-        }), -- js/ts formatter
         formatting.stylua, -- lua formatter
         formatting.isort, -- python formatter
         formatting.black, -- python formatter
-        diagnostics.eslint.with({ -- js/ts linter eslint
-          prefer_local = "node_modules/.bin",
+        formatting.prettierd, -- js/ts formatter
+        diagnostics.pylint, -- python linter
+        require("none-ls.diagnostics.eslint_d").with({ -- js/ts linter eslint
           condition = function(utils)
             return utils.root_has_file({
               ".eslintrc",
@@ -73,7 +52,6 @@ return {
             })
           end,
         }),
-        diagnostics.pylint, -- python linter
       },
       -- configure format on save
       on_attach = function(current_client, bufnr)
