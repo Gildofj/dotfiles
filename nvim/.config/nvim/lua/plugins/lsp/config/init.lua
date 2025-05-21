@@ -11,7 +11,10 @@ return {
     },
   },
   config = function()
-    require("plugins.lsp.config").setup()
+    require("plugins.lsp.config.server_setup").run()
+    require("mason-lspconfig").setup({
+      ensure_installed = require("plugins.lsp.config.ensure_installed_servers"),
+    })
 
     -- Change the Diagnostic symbols in the sign column (gutter)
     local signs = { Error = " ", Warn = " ", Hint = "󰠠 ", Info = " " }
