@@ -18,7 +18,7 @@ return {
     --@type neotree.Config
     return {
       filesystem = {
-        use_libuv_wathcer = true,
+        use_libuv_watcher = true,
         follow_current_file = {
           enabled = true,
         },
