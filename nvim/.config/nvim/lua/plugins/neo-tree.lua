@@ -12,8 +12,7 @@ return {
     local command = require("neo-tree.command")
     vim.keymap.set("n", "<C-b>", ":Neotree filesystem reveal left<CR>")
     vim.keymap.set("n", "<C-S-b>", ":Neotree filesystem action=close<CR>")
-    vim.keymap.set("n", "<C-g>", ":Neotree git_status reveal left<CR>")
-    vim.keymap.set("n", "<C-S-g>", ":Neotree git_status action=close<CR>")
+    vim.keymap.set("n", "<C-g>", ":Neotree float git_status reveal<CR>")
 
     --@type neotree.Config
     return {
