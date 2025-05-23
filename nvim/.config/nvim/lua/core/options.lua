@@ -58,3 +58,7 @@ vim.api.nvim_create_autocmd("TextYankPost", {
     })
   end,
 })
+
+-- Disable netrw (file explorer) to prevent conflicts with Neo-tree
+vim.g.loaded_netrw = 1
+vim.g.loaded_netrwPlugin = 1

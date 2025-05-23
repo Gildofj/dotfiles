@@ -17,6 +17,15 @@ return {
 
     --@type neotree.Config
     return {
+      filesystem = {
+        use_libuv_wathcer = true,
+        follow_current_file = {
+          enabled = true,
+        },
+        window = {
+          auto_preview = true, -- 👈 preview automático
+        },
+      },
       window = {
         mappings = {
           ["P"] = {
