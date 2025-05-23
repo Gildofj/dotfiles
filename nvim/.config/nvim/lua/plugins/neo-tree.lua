@@ -21,9 +21,6 @@ return {
         follow_current_file = {
           enabled = true,
         },
-        window = {
-          auto_preview = true, -- 👈 preview automático
-        },
       },
       window = {
         mappings = {
@@ -33,6 +30,42 @@ return {
               use_float = false,
               use_image_nvim = true,
             },
+          },
+        },
+      },
+      nesting_rules = {
+        ["package.json"] = {
+          pattern = "^package%.json$",
+          files = {
+            "package-lock.json",
+            "yarn.lock",
+            "pnpm-lock.yaml",
+            "eslint.*",
+            ".eslintrc*",
+            ".prettier*",
+            ".nvmrc",
+            ".editorconfig",
+            "tsconfig.*",
+            "vite.config.*",
+          },
+        },
+        ["tsconfig.json"] = {
+          pattern = "^tsconfig%.json$",
+          files = {
+            "tsconfig.*.json",
+          },
+        },
+        [".env"] = {
+          pattern = "^%.env$",
+          files = {
+            ".env.*",
+          },
+        },
+        ["tailwind.config.js"] = {
+          pattern = "^tailwind%.config%.js$",
+          files = {
+            "tailwind.config.*",
+            "postcss.config.*",
           },
         },
       },
@@ -74,7 +107,6 @@ return {
           end,
         },
       },
-      default_component_configs = {},
     }
   end,
 }
