@@ -14,6 +14,10 @@ return {
     vim.keymap.set("n", "<C-S-b>", ":Neotree filesystem action=close<CR>")
     vim.keymap.set("n", "<C-g>", ":Neotree float git_status reveal<CR>")
 
+    -- Disable netrw (file explorer) to prevent conflicts with Neo-tree
+    vim.g.loaded_netrw = 1
+    vim.g.loaded_netrwPlugin = 1
+
     --@type neotree.Config
     return {
       filesystem = {
