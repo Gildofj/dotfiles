@@ -1,11 +1,16 @@
 export PATH=$HOME/bin:/usr/local/bin:/sbin/:$HOME/.cargo/bin:$HOME/.local/share/:$HOME/.local/share/bob/nvim-bin:$PATH
 
+#Nvm setup
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
+# Dotnet setup
 export DOTNET_ROOT=/usr/local/share/dotnet
 export PATH=$PATH:$DOTNET_ROOT:$DOTNET_ROOT/tools
+
+#Rustup setup
+export PATH="/usr/local/opt/rustup/bin:$PATH"
 
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
@@ -110,3 +115,8 @@ eval $(thefuck --alias)
 #   wait
 #   tmux new-session
 # fi
+
+# Set autocompletions
+fpath+=("/usr/local/share/zsh/site-functions")
+autoload -Uz compinit
+compinit
