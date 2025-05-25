@@ -120,3 +120,6 @@ eval $(thefuck --alias)
 fpath+=("/usr/local/share/zsh/site-functions")
 autoload -Uz compinit
 compinit
+
+# Load secrets if they exists
+[[ -f "$HOME/.secrets.zsh" ]] && source "$HOME/.secrets.zsh"
