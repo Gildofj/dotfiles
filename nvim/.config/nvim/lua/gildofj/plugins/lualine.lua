@@ -15,6 +15,8 @@ return {
     local lualine_require = require("lualine_require")
     lualine_require.require = require
 
+    local icons = Utils.icons
+
     vim.o.laststatus = vim.g.lualine_laststatus
 
     local opts = {
@@ -28,7 +30,15 @@ return {
         lualine_b = { "branch" },
         lualine_c = {
           Utils.lualine.root_dir(),
-          { "diagnostics", symbols = {} },
+          {
+            "diagnostics",
+            symbols = {
+              error = icons.diagnostics.Error,
+              warn = icons.diagnostics.Warn,
+              info = icons.diagnostics.Info,
+              hint = icons.diagnostics.Hint,
+            },
+          },
           { "filetype", icon_only = true, separator = "", padding = { left = 1, right = 0 } },
           { Utils.lualine.pretty_path() },
         },
@@ -73,7 +83,7 @@ return {
           },
         },
         lualine_y = {
-          { "progress", separator = " ", padding = { left = 1, right = 0 } },
+          { "progress", separator = "  ", padding = { left = 1, right = 0 } },
           { "location", padding = { left = 0, right = 1 } },
         },
         lualine_z = {

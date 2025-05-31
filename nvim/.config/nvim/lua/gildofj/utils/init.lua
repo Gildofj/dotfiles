@@ -1,4 +1,5 @@
 ---@class gildofj.utils: GildofjUtilsCore
+---@field icons gildofj.core.icons
 ---@field root gildofj.utils.root
 ---@field lualine gildofj.utils.lualine
 ---@field lsp gildofj.utils.lsp
