@@ -1,7 +1,7 @@
 local lspkind = require("lspkind")
 
 return {
-  format = function(entry, vim_item)
+  format = function(entry, item)
     local source_names = {
       nvim_lsp = "[LSP]",
       nvim_lua = "[Lua]",
@@ -12,9 +12,9 @@ return {
       calc = "[Calc]",
     }
 
-    vim_item.kind = lspkind.symbolic(vim_item.kind, { mode = "symbol_text" })
-    vim_item.menu = source_names[entry.source.name]
-    vim_item.abbr = string.sub(vim_item.abbr, 1, 80)
-    return vim_item
+    item.kind = lspkind.symbolic(item.kind, { mode = "symbol_text" })
+    item.menu = source_names[entry.source.name]
+    item.abbr = string.sub(item.abbr, 1, 80)
+    return item
   end,
 }
