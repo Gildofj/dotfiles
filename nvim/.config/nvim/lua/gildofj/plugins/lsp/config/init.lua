@@ -11,9 +11,9 @@ return {
     },
   },
   config = function()
-    require("plugins.lsp.config.server_setup").run()
+    require("gildofj.plugins.lsp.config.server_setup").run()
     require("mason-lspconfig").setup({
-      ensure_installed = require("plugins.lsp.config.ensure_installed_servers"),
+      ensure_installed = require("gildofj.plugins.lsp.config.ensure_installed_servers"),
     })
 
     -- Change the Diagnostic symbols in the sign column (gutter)

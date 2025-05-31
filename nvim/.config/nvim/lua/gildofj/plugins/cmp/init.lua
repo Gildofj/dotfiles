@@ -29,13 +29,11 @@ return {
             luasnip.lsp_expand(args.body)
           end,
         },
-        mapping = require("plugins.cmp.mapping"),
-        sources = require("plugins.cmp.sources"),
-        formatting = require("plugins.cmp.formatting"),
+        mapping = require("gildofj.plugins.cmp.mapping"),
+        sources = require("gildofj.plugins.cmp.sources"),
+        formatting = require("gildofj.plugins.cmp.formatting"),
         experimental = {
           ghost_text = true,
-          -- uso com lspkind (opcional)
-          -- ghost_text = { hl_group = "CmpItemKindGhostText" },
         },
       }
     end,

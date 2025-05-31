@@ -1,7 +1,7 @@
 local lspconfig = require("lspconfig")
 local capabilities = require("cmp_nvim_lsp").default_capabilities()
-local keymaps = require("plugins.lsp.config.keymaps")
-local ensure_installed_servers = require("plugins.lsp.config.ensure_installed_servers")
+local keymaps = require("gildofj.plugins.lsp.config.keymaps")
+local ensure_installed_servers = require("gildofj.plugins.lsp.config.ensure_installed_servers")
 
 local function setup_server(server, config)
   config.capabilities = capabilities
@@ -11,7 +11,7 @@ local function setup_server(server, config)
 end
 
 local function configure_server(server_name)
-  local has_handler, config = pcall(require, "plugins.lsp.config.handlers." .. server_name)
+  local has_handler, config = pcall(require, "gildofj.plugins.lsp.config.handlers." .. server_name)
   if has_handler then
     setup_server(server_name, config)
   else

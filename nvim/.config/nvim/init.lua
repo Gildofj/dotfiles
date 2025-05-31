@@ -1,2 +1,2 @@
-require("core")
-require("lazy_init")
+require("gildofj.core")
+require("gildofj")
