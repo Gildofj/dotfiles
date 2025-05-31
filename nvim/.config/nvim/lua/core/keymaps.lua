@@ -1,8 +1,5 @@
 local opts = { noremap = true, silent = true }
 
--- Map leader
-vim.g.mapleader = " "
-
 -- Delete a word backwards
 vim.keymap.set("n", "dw", "vb_d")
 

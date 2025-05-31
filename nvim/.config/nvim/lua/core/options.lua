@@ -1,3 +1,10 @@
+-- global settings
+vim.g.mapleader = " "
+vim.g.maplocalleader = "\\"
+
+vim.g.autoformat = true
+vim.g.ai_cmp = true
+
 -- encoding
 vim.scriptencoding = "utf-8"
 vim.encoding = "utf-8"
