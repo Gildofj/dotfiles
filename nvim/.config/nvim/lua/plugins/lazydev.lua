@@ -3,9 +3,10 @@ return {
   ft = "lua",
   opts = {
     library = {
-      "lazy.nvim",
-      -- Load the wezterm types when the `wezterm` module is required
-      -- Needs `justinsgithub/wezterm-types` to be installed
+      { path = "${3rd}/luv/library", words = { "vim%.uv" } },
+      { path = "LazyVim", words = { "LazyVim" } },
+      { path = "snacks.nvim", words = { "Snacks" } },
+      { path = "lazy.nvim", words = { "LazyVim" } },
       { path = "wezterm-types", mods = { "wezterm" } },
     },
   },
