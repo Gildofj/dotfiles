@@ -1,5 +1,6 @@
 local lspkind = require("lspkind")
 
+-- TODO: Use local icons
 return {
   format = function(entry, item)
     local source_names = {
