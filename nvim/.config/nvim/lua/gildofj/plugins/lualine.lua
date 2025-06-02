@@ -57,6 +57,12 @@ return {
           },
           -- stylua: ignore
           {
+            function() return icons.kinds.Gemini end,
+            cond = function () return package.loaded["gemini"] end,
+            color = function () return { fg = Utils.color("Special") } end
+          },
+          -- stylua: ignore
+          {
             function () return "  " .. require("dap").status end,
             cond = function() return package.loaded["dap"] and require("dap").status() ~= "" end,
             color = function() return { fg = Utils.color("Debug")} end

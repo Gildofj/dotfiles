@@ -2,7 +2,7 @@
 local M = {}
 
 ---@param icon string
----@param status fun(): nil|"ok"|"error"|"pending"
+---@param status fun(): nil|"ok"|"error"|"pending" | "ok"|"error"|"pending"
 function M.status(icon, status)
   local colors = {
     ok = "Special",
@@ -31,7 +31,7 @@ function M.cmp_source(name, icon)
     if not package.loaded["cmp"] then
       return
     end
-    for _, s in ipairs(require("gildofj.plugins.cmp.init").core.sources or {}) do
+    for _, s in ipairs(require("gildofj.plugins.cmp").core.sources or {}) do
       if s.name == name then
         if s.source:is_available() then
           started = true

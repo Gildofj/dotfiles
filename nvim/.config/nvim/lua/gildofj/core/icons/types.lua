@@ -44,6 +44,7 @@
 ---@field Package string
 ---@field String string
 ---@field Variable string
+---@field Gemini string
 
 ---@class IconsUI
 ---@field ArrowCircleDown string

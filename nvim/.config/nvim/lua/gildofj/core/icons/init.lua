@@ -46,6 +46,7 @@ return {
     Package = " ",
     String = " ",
     Variable = " ",
+    Gemini = "✦ ",
   },
   ui = {
     ArrowCircleDown = "",
