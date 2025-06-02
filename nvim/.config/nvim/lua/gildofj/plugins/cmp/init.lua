@@ -13,7 +13,6 @@ return {
       "hrsh7th/cmp-emoji", -- source for emojis
       "hrsh7th/cmp-buffer", -- source for text in buffer
       "hrsh7th/cmp-path", -- source for file system paths
-      "onsails/lspkind.nvim", -- vs-code like pictograms
     },
     opts = function()
       local luasnip = require("luasnip")
@@ -33,7 +32,9 @@ return {
         sources = require("gildofj.plugins.cmp.sources"),
         formatting = require("gildofj.plugins.cmp.formatting"),
         experimental = {
-          ghost_text = true,
+          ghost_text = vim.g.ai_cmp and {
+            hl_group = "CmpGhostText",
+          } or false,
         },
       }
     end,

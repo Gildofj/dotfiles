@@ -15,7 +15,7 @@ return {
     local lualine_require = require("lualine_require")
     lualine_require.require = require
 
-    local icons = Utils.icons
+    local icons = Core.icons
 
     vim.o.laststatus = vim.g.lualine_laststatus
 

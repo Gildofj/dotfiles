@@ -1,6 +1,3 @@
-local lspkind = require("lspkind")
-
--- TODO: Use local icons
 return {
   format = function(entry, item)
     local source_names = {
@@ -13,9 +10,14 @@ return {
       calc = "[Calc]",
     }
 
-    item.kind = lspkind.symbolic(item.kind, { mode = "symbol_text" })
+    local icons = Core.icons.kinds
+    if icons[item.kind] then
+      item.kind = icons[item.kind] .. " " .. item.kind
+    end
+
     item.menu = source_names[entry.source.name]
     item.abbr = string.sub(item.abbr, 1, 80)
+
     return item
   end,
 }

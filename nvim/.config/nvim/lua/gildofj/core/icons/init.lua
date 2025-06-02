@@ -1,3 +1,4 @@
+---@class gildofj.core.icons: GildofjIcons
 return {
   diagnostics = {
     Error = " ",
