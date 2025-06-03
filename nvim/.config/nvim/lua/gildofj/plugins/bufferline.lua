@@ -40,9 +40,8 @@ return {
             text_align = "left",
           },
         },
-        ---@param opts bufferline.IconFetcherOpts
-        get_element_icon = function(opts)
-          return Core.icons.ft[opts.filetype]
+        get_element_icon = function(icon_opts)
+          return Core.icons.ft[icon_opts.filetype]
         end,
       },
     }
@@ -52,7 +51,8 @@ return {
     vim.api.nvim_create_autocmd({ "BufAdd", "BufDelete" }, {
       callback = function()
         vim.schedule(function()
-          pcall(nvim_bufferline)
+          pcall(require("bufferline").refresh)
+          -- pcall(nvim_bufferline)
         end)
       end,
     })
