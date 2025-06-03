@@ -1,7 +1,6 @@
 return {
   "echasnovski/mini.move",
   event = "VeryLazy",
-  version = "*",
   opts = {
     mappings = {
       -- Mapeia Alt+h/j/k/l para mover em todas as direções
