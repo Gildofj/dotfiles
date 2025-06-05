@@ -1,6 +1,7 @@
 return {
   format = function(entry, item)
     local source_names = {
+      lazydev = "[Lazy]",
       nvim_lsp = "[LSP]",
       nvim_lua = "[Lua]",
       luasnip = "[Snip]",
