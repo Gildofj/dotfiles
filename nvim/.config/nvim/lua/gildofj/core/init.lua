@@ -9,3 +9,4 @@ _G.Core = M
 _G.Utils = require("gildofj.utils")
 require("gildofj.core.keymaps")
 require("gildofj.core.options")
+require("gildofj.core.autocmds")
