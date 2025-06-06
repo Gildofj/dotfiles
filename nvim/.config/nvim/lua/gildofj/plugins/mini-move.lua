@@ -3,17 +3,17 @@ return {
   event = "VeryLazy",
   opts = {
     mappings = {
-      -- Mapeia Alt+h/j/k/l para mover em todas as direções
-      left = "<M-h>",
-      right = "<M-l>",
-      down = "<M-j>",
-      up = "<M-k>",
+      -- Sapeia Alt+b/n/m/, para mover em todas as direções
+      left = "<M-b>",
+      right = "<M-,>",
+      down = "<M-n>",
+      up = "<M-m>",
 
       -- Também funciona em modo visual
-      line_left = "<M-h>",
-      line_right = "<M-l>",
-      line_down = "<M-j>",
-      line_up = "<M-k>",
+      line_left = "<M-b>",
+      line_right = "<M-,>",
+      line_down = "<M-n>",
+      line_up = "<M-m>",
     },
   },
 }
