@@ -3,7 +3,7 @@ general:
   shutdown_commands: ["shell-exec taskkill /IM zebar.exe /F"]
   config_reload_commands: []
 
-  focus_follows_cursor: false
+  focus_follows_cursor: true
   toggle_workspace_on_refocus: false
 
   cursor_jump:
@@ -17,10 +17,10 @@ gaps:
   scale_with_dpi: true
   inner_gap: "20px"
   outer_gap:
-    top: "50px"
-    right: "10px"
-    bottom: "10px"
-    left: "10px"
+    top: "60px"
+    right: "20px"
+    bottom: "20px"
+    left: "20px"
 
 window_effects:
   focused_window:
