@@ -17,7 +17,7 @@ gaps:
   scale_with_dpi: true
   inner_gap: "20px"
   outer_gap:
-    top: "60px"
+    top: "50px"
     right: "10px"
     bottom: "10px"
     left: "10px"
@@ -28,7 +28,7 @@ window_effects:
     # ** Exclusive to Windows 11 due to API limitations.
     border:
       enabled: true
-      color: "#8dbcff"
+      color: #cba6f7
     hide_title_bar:
       enabled: false
     corner_style:

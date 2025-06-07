@@ -4,13 +4,46 @@
  */
 @import "https://www.nerdfonts.com/assets/css/webfont.css";
 
+:root {
+  --rosewater: #f5e0dc;
+  --flamingo: #f2cdcd;
+  --pink: #f5c2e7;
+  --mauve: #cba6f7;
+  --red: #f38ba8;
+  --maroon: #eba0ac;
+  --peach: #fab387;
+  --yellow: #f9e2af;
+  --green: #a6e3a1;
+  --teal: #94e2d5;
+  --sky: #89dceb;
+  --sapphire: #74c7ec;
+  --blue: #89b4fa;
+  --lavender: #b4befe;
+
+  --text: #cdd6f4;
+  --subtext1: #bac2de;
+  --subtext0: #a6adc8;
+
+  --overlay2: #9399b2;
+  --overlay1: #7f849c;
+  --overlay0: #6c7086;
+
+  --surface2: #585b70;
+  --surface1: #45475a;
+  --surface0: #313244;
+
+  --base: #1e1e2e;
+  --mantle: #181825;
+  --crust: #11111b;
+}
+
 i {
-  color: rgb(115 130 175 / 95%);
+  color: var(--mauve);
   margin-right: 7px;
 }
 
 body {
-  color: rgb(255 255 255 / 90%);
+  color: var(--text);
   font-family: ui-monospace, monospace;
   font-size: 12px;
   overflow: hidden;
@@ -25,13 +58,13 @@ p {
 
 html,
 body,
-#root {
+#app {
   height: 100%;
 }
 
-#root {
+#app {
   border-bottom: 1px solid rgb(255 255 255 / 5%);
-  background: linear-gradient(rgb(0 0 0 / 90%), rgb(5 2 20 / 85%));
+  background: var(--crust);
 }
 
 .app {
@@ -74,21 +107,25 @@ body,
 }
 
 .workspace {
-  background: rgb(255 255 255 / 5%);
+  background: transparent;
+  color: var(--text);
   margin-right: 4px;
   padding: 4px 8px;
-  color: rgb(255 255 255 / 90%);
   border: none;
   border-radius: 2px;
   cursor: pointer;
 
   &.displayed {
-    background: rgb(255 255 255 / 15%);
+    background: var(--surface1);
   }
 
-  &.focused,
+  &.focused {
+    background: var(--surface0);
+    color: var(--mauve);
+  }
+
   &:hover {
-    background: rgb(75 115 255 / 50%);
+    background: var(--surface1);
   }
 }
 
@@ -109,11 +146,13 @@ body,
 }
 
 .cpu .high-usage {
-  color: #900029;
+  color: var(--red);
 }
 
 .battery {
   position: relative;
+  background: var(--surface0);
+  color: var(--yellow);
 }
 
 .battery .charging-icon {
@@ -121,4 +160,9 @@ body,
   font-size: 7px;
   left: -8px;
   top: 3px;
+}
+
+.clock {
+  color: var(--green);
+  padding: 0 8px;
 }
