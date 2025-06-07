@@ -132,8 +132,8 @@ body,
 .binding-mode,
 .tiling-direction,
 .paused-button {
-  background: rgb(255 255 255 / 15%);
-  color: rgb(255 255 255 / 90%);
+  background: var(--surface0);
+  color: var(--mauve);
   border-radius: 2px;
   line-height: 1;
   padding: 4px 8px;
