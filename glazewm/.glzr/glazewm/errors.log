@@ -1,1 +1,2 @@
 [2m2025-06-07T02:14:35.441618Z[0m [31mERROR[0m [2mglazewm[0m[2m:[0m unknown anchor at line 31 column 14
+[2m2025-06-07T02:32:47.420486Z[0m [31mERROR[0m [2mglazewm[0m[2m:[0m window_effects.focused_window.border: data did not match any variant of untagged enum ColorDe at line 30 column 7
