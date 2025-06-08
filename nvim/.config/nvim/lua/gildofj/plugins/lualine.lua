@@ -58,8 +58,8 @@ return {
           -- stylua: ignore
           {
             function() return icons.kinds.Gemini end,
-            cond = function () return package.loaded["gemini"] end,
-            color = function () return { fg = Utils.color("Special") } end
+            cond = function () local ok, _ = pcall(require, "gemini") return ok end,
+            color = function () return { fg = Utils.color("Special") } end,
           },
           -- stylua: ignore
           {
