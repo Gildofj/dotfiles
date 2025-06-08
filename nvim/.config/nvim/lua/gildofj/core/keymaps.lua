@@ -6,20 +6,10 @@ vim.keymap.set("n", "dw", "vb_d")
 -- Select all
 vim.keymap.set("n", "<C-a>", "gg<S-v>G")
 
--- Tab navigation
-vim.keymap.set("n", "te", ":tabedit<CR>", opts)
-vim.keymap.set("n", "<tab>", ":tabnext<CR>", opts)
-vim.keymap.set("n", "<s-tab>", ":tabprev<CR>", opts)
-
 -- Split window
 vim.keymap.set("n", "sv", ":vsplit<CR>", opts)
 vim.keymap.set("n", "ss", ":split<CR>", opts)
-
--- Move window
-vim.keymap.set("n", "sh", "<C-w>h")
-vim.keymap.set("n", "sk", "<C-w>k")
-vim.keymap.set("n", "sj", "<C-w>j")
-vim.keymap.set("n", "sl", "<C-w>l")
+vim.keymap.set("n", "sc", ":q<CR>", opts)
 
 -- Resize window
 vim.keymap.set("n", "<C-w><left>", "<C-w><")
