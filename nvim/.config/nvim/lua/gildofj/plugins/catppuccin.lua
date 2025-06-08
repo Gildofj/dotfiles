@@ -3,6 +3,12 @@ return {
   name = "catppuccin",
   priority = 1000,
   opts = {
+    flavour = "auto", -- latte, frappe, macchiato, mocha
+    background = { -- :h background
+      light = "latte",
+      dark = "mocha",
+    },
+    transparent_background = true, -- ignore background color and use terminal color background
     integrations = {
       fidget = true,
       gitgraph = true,
@@ -39,10 +45,8 @@ return {
       which_key = true,
     },
   },
-  config = function()
-    -- vim.cmd.colorscheme("catppuccin-latte")
-    -- vim.cmd.colorscheme("catppuccin-frape")
-    -- vim.cmd.colorscheme("catppuccin-macchiato")
-    vim.cmd.colorscheme("catppuccin-mocha")
+  config = function(_, opts)
+    require("catppuccin").setup(opts)
+    vim.cmd.colorscheme("catppuccin")
   end,
 }
