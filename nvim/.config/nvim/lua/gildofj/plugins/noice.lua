@@ -1,6 +1,10 @@
 return {
   "folke/noice.nvim",
   event = "VeryLazy",
+  dependencies = {
+    "MunifTanjim/nui.nvim",
+    "rcarringa/nvim-notify",
+  },
   opts = {
     lsp = {
       -- override markdown rendering so that **cmp** and other plugins use **Treesitter**
@@ -30,9 +34,6 @@ return {
         lsp_doc_border = false, -- add a border to hover docs and signature help
       },
     },
-  },
-  dependencies = {
-    "MunifTanjim/nui.nvim",
   },
   config = function(_, opts)
     -- HACK: noice shows messages from before it was enabled,
