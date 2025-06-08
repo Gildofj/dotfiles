@@ -19,9 +19,18 @@ return {
 
     vim.o.laststatus = vim.g.lualine_laststatus
 
+    --Fix transparent background issue for catppuccin don't show component separators on lualine_x
+    ---@type string | table<string, string>
+    local lualine_theme = "auto"
+    if string.find(vim.g.colors_name, "catppuccin") then
+      local lualine_catpuccin = require("lualine.themes.catppuccin")
+      lualine_catpuccin.normal.c.bg = "#181825"
+      lualine_theme = lualine_catpuccin
+    end
+
     local opts = {
       options = {
-        theme = "auto",
+        theme = lualine_theme,
         globalstatus = vim.o.laststatus == 3,
         disabled_filetypes = { statusline = { "dashboard", "alpha", "ministarter", "snacks_dasboard" } },
       },
@@ -65,13 +74,13 @@ return {
           {
             function () return "  " .. require("dap").status end,
             cond = function() return package.loaded["dap"] and require("dap").status() ~= "" end,
-            color = function() return { fg = Utils.color("Debug")} end
+            color = function() return { fg = Utils.color("Debug") } end
           },
           -- stylua: ignore
           {
             require("lazy.status").updates,
             cond = require("lazy.status").has_updates,
-            color = function() return { fg = Utils.color("Special")} end,
+            color = function() return { fg = Utils.color("Special") } end,
           },
           {
             "diff",
