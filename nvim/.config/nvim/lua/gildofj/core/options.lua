@@ -93,14 +93,16 @@ vim.opt.splitbelow = true -- Put new windows below current
 vim.opt.splitkeep = "screen"
 vim.opt.splitright = true -- Put new windows right of current
 
+-- TODO: See if need implement lazyvim logic
 if vim.fn.has("nvim-0.10") == 1 then
   vim.opt.smoothscroll = true
-  vim.opt.foldexpr = "v:lua.require'lazyvim.util'.ui.foldexpr()"
+  -- vim.opt.foldexpr = "v:lua.require'lazyvim.util'.ui.foldexpr()"
+  vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
   vim.opt.foldmethod = "expr"
   vim.opt.foldtext = ""
 else
   vim.opt.foldmethod = "indent"
-  vim.opt.foldtext = "v:lua.require'lazyvim.util'.ui.foldtext()"
+  -- vim.opt.foldtext = "v:lua.require'lazyvim.util'.ui.foldtext()"
 end
 
 -- Fix markdown indentation settings
