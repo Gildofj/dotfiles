@@ -4,6 +4,7 @@
  */
 @import "https://www.nerdfonts.com/assets/css/webfont.css";
 
+/* mocha theme */
 :root {
   --rosewater: #f5e0dc;
   --flamingo: #f2cdcd;
@@ -63,8 +64,8 @@ body,
 }
 
 #app {
-  border-bottom: 1px solid rgb(255 255 255 / 5%);
-  background: var(--crust);
+  border-bottom: 1px solid color-mix(in srgb, var(--base) 5%, transparent);
+  background: var(--base);
 }
 
 .app {
