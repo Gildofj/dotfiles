@@ -28,7 +28,6 @@ return {
     auto_install = true,
     highlight = { enable = true },
     indent = { enable = true },
-    autotag = { enable = true },
     incremental_selection = {
       enable = true,
       keymaps = {

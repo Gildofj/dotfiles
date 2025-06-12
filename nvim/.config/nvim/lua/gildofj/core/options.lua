@@ -55,6 +55,7 @@ vim.opt.wrap = false -- Disable line wrap
 vim.opt.backspace = "indent,eol,start" -- Allow backspace on indent, end of line or insert mode start position
 vim.opt.clipboard:append("unnamedplus") -- Use system clipboard as default register
 vim.opt.mouse:append("a")
+vim.opt.fileformats = { "unix" } -- Force just unix breakline on neovim
 vim.opt.swapfile = false -- Turn off swapfile
 vim.opt.autoread = true
 vim.bo.autoread = true
