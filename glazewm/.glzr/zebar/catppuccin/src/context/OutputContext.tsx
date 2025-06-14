@@ -12,7 +12,7 @@ import {
   type WeatherOutput,
 } from "zebar";
 
-type ZebarContextOutput = {
+export type ZebarContextOutput = {
   network: NetworkOutput | null;
   glazewm: GlazeWmOutput | null;
   cpu: CpuOutput | null;

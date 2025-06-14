@@ -7,6 +7,7 @@ import { Memory } from "./components/Memory";
 import { Cpu } from "./components/Cpu";
 import { Battery } from "./components/Battery";
 import { Weather } from "./components/Weather";
+import { ActiveApp } from "./components/ActiveApp";
 
 render(
   <ZebarProvider>
@@ -21,10 +22,17 @@ function App() {
   return (
     <div class="app">
       <div class="left">
+        <i class="logo nf nf-dev-windows11"></i>
         <GlazeWMWorkspaces />
       </div>
 
-      <div class="center clock">{output.date?.formatted}</div>
+      <div class="center">
+        <div class="clock">
+          <i class="nf nf-md-calendar_month" />
+          <span>{output.date?.formatted}</span>
+        </div>
+        {output.glazewm ? <ActiveApp output={output} /> : null}
+      </div>
 
       <div class="right">
         <GlazeWMStatus />
