@@ -57,6 +57,10 @@ p {
   user-select: none;
 }
 
+/* html { */
+/*   margin: 0.4vw 0.4vw 0; */
+/* } */
+
 html,
 body,
 #app {
@@ -64,8 +68,8 @@ body,
 }
 
 #app {
-  border-bottom: 1px solid color-mix(in srgb, var(--base) 5%, transparent);
-  background: var(--base);
+  background: color-mix(in srgb, var(--base) 60%, transparent);
+  backdrop-filter: blur(10px);
 }
 
 .app {
@@ -73,7 +77,7 @@ body,
   grid-template-columns: 1fr 1fr 1fr;
   align-items: center;
   height: 100%;
-  padding: 4px 1.5vw;
+  padding: 0px 1vw;
 }
 
 .left,
