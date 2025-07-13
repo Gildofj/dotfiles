@@ -14,8 +14,8 @@ return {
 
     mason_null_ls.setup({
       ensure_installed = {
-        "prettierd", -- prettier formatter
         "stylua", -- lua formatter
+        "prettierd", -- prettier formatter
         "eslint_d", -- js linter
         "black", -- python formatter
         "pylint", -- python linter
@@ -35,12 +35,6 @@ return {
       root_dir = null_ls_utils.root_pattern(".null-ls-root", "Makefile", ".git", "package.json"),
       -- setup formatters & linters
       sources = {
-        --  to disable file types use
-        formatting.stylua, -- lua formatter
-        formatting.isort, -- python formatter
-        formatting.black, -- python formatter
-        formatting.prettierd, -- js/ts formatter
-        diagnostics.pylint, -- python linter
         require("none-ls.diagnostics.eslint_d").with({ -- js/ts linter eslint
           condition = function(utils)
             return utils.root_has_file({
@@ -54,6 +48,11 @@ return {
             })
           end,
         }),
+        diagnostics.pylint, -- python linter
+        formatting.stylua, -- lua formatter
+        formatting.isort, -- python formatter
+        formatting.black, -- python formatter
+        formatting.prettierd, -- js/ts formatter
       },
       -- configure format on save
       on_attach = function(current_client, bufnr)
