@@ -35,6 +35,11 @@ return {
       root_dir = null_ls_utils.root_pattern(".null-ls-root", "Makefile", ".git", "package.json"),
       -- setup formatters & linters
       sources = {
+        formatting.stylua, -- lua formatter
+        formatting.isort, -- python formatter
+        formatting.black, -- python formatter
+        diagnostics.pylint, -- python linter
+        formatting.prettierd, -- js/ts formatter
         require("none-ls.diagnostics.eslint_d").with({ -- js/ts linter eslint
           condition = function(utils)
             return utils.root_has_file({
@@ -48,11 +53,6 @@ return {
             })
           end,
         }),
-        diagnostics.pylint, -- python linter
-        formatting.stylua, -- lua formatter
-        formatting.isort, -- python formatter
-        formatting.black, -- python formatter
-        formatting.prettierd, -- js/ts formatter
       },
       -- configure format on save
       on_attach = function(current_client, bufnr)
