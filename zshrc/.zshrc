@@ -1,4 +1,4 @@
-export PATH=$HOME/bin:/usr/local/bin:/sbin/:$HOME/.cargo/bin:$HOME/.local/share/:$HOME/.local/share/bob/nvim-bin:$PATH
+export PATH=$HOME/bin:/usr/local/bin:/sbin/:$HOME/.cargo/bin:$HOME/.local/share/:$HOME/.local/share/bob/nvim-bin:$HOME/.local/bin:$PATH
 
 #Nvm setup
 export NVM_DIR="$HOME/.nvm"
