@@ -23,10 +23,9 @@ return {
         "prettierd", -- js/ts formatter
         "stylua", -- lua formatter
         "rust-analyzer", -- rust formatter
-        "isort", -- python formatter
-        "black", -- python formatter
         "eslint_d", -- js/ts linter
-        "pylint", -- python linter
+        "ruff", -- python linter
+        "pyright", -- python formatter
       },
       auto_update = true,
     })

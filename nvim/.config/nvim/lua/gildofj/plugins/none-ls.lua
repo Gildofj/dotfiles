@@ -11,14 +11,14 @@ return {
     local mason_null_ls = require("mason-null-ls")
     local null_ls = require("null-ls")
     local null_ls_utils = require("null-ls.utils")
+    local null_ls_helpers = require("null-ls.helpers")
 
     mason_null_ls.setup({
       ensure_installed = {
         "stylua", -- lua formatter
         "prettierd", -- prettier formatter
         "eslint_d", -- js linter
-        "black", -- python formatter
-        "pylint", -- python linter
+        "ruff", -- python linter
       },
     })
 
@@ -29,6 +29,48 @@ return {
     -- to setup format on save
     local augroup = vim.api.nvim_create_augroup("LspFormatting", {})
 
+    -- Caminho do Ruff do virtualenv do Poetry
+    local poetry_venv = vim.fn.system("poetry env info -p"):gsub("\n", "")
+    local ruff_path = poetry_venv .. (Utils.is_win() and "\\Scripts\\ruff.exe" or "/bin/ruff")
+
+    -- Ruff como DIAGNOSTIC
+    local ruff_diagnostics = {
+      method = null_ls.methods.DIAGNOSTICS,
+      filetypes = { "python" },
+      generator = null_ls.generator({
+        command = ruff_path,
+        args = { "check", "--quiet", "--stdin-filename", "$FILENAME", "-" },
+        to_stdin = true,
+        from_stderr = false,
+        format = "line",
+        check_exit_code = function(code)
+          return code <= 1
+        end,
+        on_output = null_ls_helpers.diagnostics.from_pattern(
+          [[^(.*?):(\d+):(\d+):\s([A-Z]\d+)\s(.*)]],
+          { "file", "row", "col", "code", "message" },
+          {
+            severities = {
+              ["E"] = null_ls_helpers.diagnostics.severities.error,
+              ["F"] = null_ls_helpers.diagnostics.severities.error,
+              ["W"] = null_ls_helpers.diagnostics.severities.warning,
+            },
+          }
+        ),
+      }),
+    }
+
+    -- Ruff como FORMATTER
+    local ruff_formatter = {
+      method = null_ls.methods.FORMATTING,
+      filetypes = { "python" },
+      generator = null_ls.formatter({
+        command = ruff_path,
+        args = { "format", "--stdin-filename", "$FILENAME", "-" },
+        to_stdin = true,
+      }),
+    }
+
     -- configure null_ls
     null_ls.setup({
       -- add package.json as identifier for root (for typescript monorepos)
@@ -36,10 +78,9 @@ return {
       -- setup formatters & linters
       sources = {
         formatting.stylua, -- lua formatter
-        formatting.isort, -- python formatter
-        formatting.black, -- python formatter
-        diagnostics.pylint, -- python linter
         formatting.prettierd, -- js/ts formatter
+        ruff_formatter, -- python formatting
+        ruff_diagnostics, -- python diagnostics
         require("none-ls.diagnostics.eslint_d").with({ -- js/ts linter eslint
           condition = function(utils)
             return utils.root_has_file({

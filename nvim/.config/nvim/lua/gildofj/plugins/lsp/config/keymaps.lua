@@ -12,7 +12,7 @@ local goto_next_diagnostic = function()
 end
 
 return {
-  on_attach = function(client, bufnr)
+  on_attach = function(_, bufnr)
     local opts = { buffer = bufnr }
 
     map_lsp_key("n", "gR", "<cmd>Telescope lsp_references<CR>", "Show LSP references", opts)
