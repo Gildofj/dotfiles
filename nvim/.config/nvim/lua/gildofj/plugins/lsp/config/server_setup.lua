@@ -1,13 +1,14 @@
-local lspconfig = require("lspconfig")
 local capabilities = require("cmp_nvim_lsp").default_capabilities()
 local keymaps = require("gildofj.plugins.lsp.config.keymaps")
 local ensure_installed_servers = require("gildofj.plugins.lsp.config.ensure_installed_servers")
 
 local function setup_server(server, config)
-  config.capabilities = capabilities
-  config.on_attach = keymaps.on_attach
+  local full_config = vim.tbl_deep_extend("force", config, {
+    capabilities = capabilities,
+    on_attach = keymaps.on_attach,
+  })
 
-  lspconfig[server].setup(config)
+  vim.lsp.config(server, full_config)
 end
 
 local function configure_server(server_name)
@@ -17,6 +18,8 @@ local function configure_server(server_name)
   else
     setup_server(server_name, {})
   end
+
+  vim.lsp.enable(server_name)
 end
 
 return {
