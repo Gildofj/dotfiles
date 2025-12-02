@@ -12,6 +12,9 @@ export PATH=$PATH:$DOTNET_ROOT:$DOTNET_ROOT/tools
 #Rustup setup
 export PATH="/usr/local/opt/rustup/bin:$PATH"
 
+#Homebrew linux setup
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
 
@@ -21,6 +24,7 @@ plugins=(
   zsh-syntax-highlighting
   zsh-autosuggestions
   fzf
+  fzf-zsh-plugin
   autoupdate
   tmux
 )
@@ -62,11 +66,11 @@ _zsh_autosuggest_strategy_histdb_top() {
     suggestion=$(_histdb_query "$query")
 }
 
-ZSH_AUTOSUGGEST_STRATEGY=histdb_top
+ZSH_AUTOSUGGEST_STRATEGY=history
 
 # FZF
-# [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-eval $(fzf --zsh)
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+# eval $(fzf --zsh)
 export FZF_DEFAULT_COMMAND="fd --hidden --strip-cwd-prefix --exclude .git"
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 export FZF_ALT_C_COMMAND="fd --type=d --hidden --strip-cwd-prefix --exclude .git"
