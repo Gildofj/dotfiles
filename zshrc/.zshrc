@@ -12,6 +12,13 @@ export PATH=$PATH:$DOTNET_ROOT:$DOTNET_ROOT/tools
 #Rustup setup
 export PATH="/usr/local/opt/rustup/bin:$PATH"
 
+# Pnpm setup
+export PNPM_HOME="/home/gildofj/.local/share/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+
 #Homebrew linux setup
 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
@@ -127,3 +134,4 @@ compinit
 
 # Load secrets if they exists
 [[ -f "$HOME/.secrets.zsh" ]] && source "$HOME/.secrets.zsh"
+fpath+=${ZDOTDIR:-~}/.zsh_functions
