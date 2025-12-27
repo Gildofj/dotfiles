@@ -5,7 +5,7 @@ vim.g.maplocalleader = "\\"
 vim.g.autoformat = true
 vim.g.ai_cmp = true
 
--- LazyVim root dir detection
+-- root dir detection
 -- Each entry can be:
 -- * the name of a detector function like `lsp` or `cwd`
 -- * a pattern or array of patterns like `.git` or `lua`.
@@ -27,8 +27,10 @@ vim.opt.fillchars = {
   eob = " ",
 }
 vim.opt.foldlevel = 99
--- vim.opt.formatexpr = "v:lua.require'lazyvim.util'.format.formatexpr()" TODO:Verify LazyVim/lua/lazyvim/util/format
--- vim.opt.formatoptions = "jcroqlnt" -- tcqj
+vim.opt.foldmethod = "indent"
+vim.opt.foldtext = ""
+vim.opt.formatexpr = "v:lua.vim.lsp.formatexpr()"
+vim.opt.formatoptions = "jcroqlnt" -- tcqj
 vim.opt.grepformat = "%f:%l:%c:%m"
 vim.opt.grepprg = "rg --vimgrep"
 vim.opt.inccommand = "nosplit" -- Preview incremental substitute
@@ -93,18 +95,6 @@ vim.opt.smartindent = true -- Insert indents automatically
 vim.opt.splitbelow = true -- Put new windows below current
 vim.opt.splitkeep = "screen"
 vim.opt.splitright = true -- Put new windows right of current
-
--- TODO: See if need implement lazyvim logic
-if vim.fn.has("nvim-0.10") == 1 then
-  vim.opt.smoothscroll = true
-  -- vim.opt.foldexpr = "v:lua.require'lazyvim.util'.ui.foldexpr()"
-  vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
-  vim.opt.foldmethod = "expr"
-  vim.opt.foldtext = ""
-else
-  vim.opt.foldmethod = "indent"
-  -- vim.opt.foldtext = "v:lua.require'lazyvim.util'.ui.foldtext()"
-end
 
 -- Fix markdown indentation settings
 vim.g.markdown_recommended_style = 0

@@ -135,3 +135,4 @@ compinit
 # Load secrets if they exists
 [[ -f "$HOME/.secrets.zsh" ]] && source "$HOME/.secrets.zsh"
 fpath+=${ZDOTDIR:-~}/.zsh_functions
+fpath+=${ZDOTDIR:-~}/.zsh_functions
