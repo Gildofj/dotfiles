@@ -24,11 +24,10 @@ return {
     -- integração com nvim-cmp
     local cmp_autopairs = require("nvim-autopairs.completion.cmp")
     local cmp = require("cmp")
-    local ts_utils = require("nvim-treesitter.ts_utils")
 
     -- Detecta se o cursor está dentro de um nó JSX (ex: <MyComponent />)
     local function in_jsx()
-      local node = ts_utils.get_node_at_cursor()
+      local node = vim.treesitter.get_node()
       while node do
         if node:type():match("jsx") then
           return true

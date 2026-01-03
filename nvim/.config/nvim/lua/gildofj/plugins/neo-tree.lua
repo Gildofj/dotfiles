@@ -5,7 +5,10 @@ return {
     "nvim-lua/plenary.nvim",
     "nvim-tree/nvim-web-devicons", -- not strictly required, but recommended
     "MunifTanjim/nui.nvim",
-    "3rd/image.nvim", -- Optional image support in preview window: See `# Preview Mode` for more information
+    {
+      "3rd/image.nvim",
+      enabled = not Utils.is_win(),
+    }, -- Optional image support in preview window: See `# Preview Mode` for more information
   },
   disactivate = function()
     vim.cmd([[Neotree close]])

@@ -1,11 +1,16 @@
 return {
   {
     "nvim-telescope/telescope.nvim",
-    tag = "0.1.5",
+    branch = "master",
     dependencies = {
       "nvim-lua/plenary.nvim",
       "nvim-tree/nvim-web-devicons",
-      { "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
+      {
+        "nvim-telescope/telescope-fzf-native.nvim",
+        build = Utils.is_win()
+            and "cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release --target install"
+          or "make",
+      },
       "nvim-telescope/telescope-ui-select.nvim",
       "ThePrimeagen/harpoon",
     },
