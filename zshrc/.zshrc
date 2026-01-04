@@ -9,6 +9,11 @@ export NVM_DIR="$HOME/.nvm"
 export DOTNET_ROOT=/usr/local/share/dotnet
 export PATH=$PATH:$DOTNET_ROOT:$DOTNET_ROOT/tools
 
+# Android mac setup
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  export PATH="$PATH:$HOME/Library/Android/sdk/cmdline-tools/latest/bin"
+fi
+
 #Rustup setup
 export PATH="/usr/local/opt/rustup/bin:$PATH"
 
