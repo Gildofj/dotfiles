@@ -12,6 +12,7 @@
 - [Como Funciona](#como-funciona)
 - [Personalização](#personalização)
 - [Aliases Disponíveis](#aliases-disponíveis)
+- [Utilitários e Scripts](#utilitários-e-scripts)
 - [Troubleshooting](#troubleshooting)
 - [FAQ](#faq)
 
@@ -19,7 +20,7 @@
 
 ## 📖 Sobre
 
-Esta configuração ZSH foi projetada para desenvolvedores que trabalham em múltiplas plataformas (Mac e Linux) e desejam uma experiência consistente e produtiva em ambos os ambientes.
+Esta configuração ZSH foi projetada para desenvolvedores que trabalham em múltiplas plataformas (Mac e Linux) e desejam uma experiência consistente e produtiva em ambos os ambientes. Recentemente otimizada para performance, alcançando um tempo de carregamento **~10x mais rápido** através de técnicas de lazy loading.
 
 ### Por que Modular?
 
@@ -36,12 +37,13 @@ Esta configuração ZSH foi projetada para desenvolvedores que trabalham em múl
 - 🖥️ **Multiplataforma**: Detecta automaticamente macOS ou Linux
 - 🎨 **Tema Spaceship**: Prompt bonito e informativo
 - 🔍 **FZF**: Busca fuzzy para arquivos, histórico e diretórios
-- 🚀 **Ferramentas Modernas**: exa, bat, fd, zoxide, thefuck
-- 📦 **Gerenciadores de Pacotes**: Homebrew, NVM, PNPM
-- 💻 **Ambientes de Dev**: Node.js, Rust, .NET, Android SDK
-- 🎯 **Aliases Inteligentes**: Git, navegação, sistema
+- ⚡ **Alta Performance**: Lazy loading para NVM e TheFuck (startup instantâneo)
+- 🚀 **Ferramentas Modernas**: eza/exa, bat, fd, zoxide, thefuck
+- 📦 **Gerenciadores de Pacotes**: Homebrew, NVM, PNPM, JBang, .NET
+- 💻 **Ambientes de Dev**: Node.js, Rust, Android SDK (consolidado no PATH)
+- 🎯 **Aliases Inteligentes**: Git, navegação, sistema, portas
 - 🔧 **Completions Avançados**: Autocompletar inteligente
-- 📝 **Histórico Aprimorado**: zsh-histdb com busca contextual
+- 📝 **Histórico Inteligente**: zsh-histdb integrado às autosuggestions
 
 ---
 
@@ -49,13 +51,15 @@ Esta configuração ZSH foi projetada para desenvolvedores que trabalham em múl
 
 ```
 ~/
-├── .zshrc                           # Loader principal que carrega tudo
+├── .zshrc                           # Loader principal (minimalista)
+├── bin/                             # Scripts e utilitários executáveis
+│   └── codespace-connect            # Gerenciador de conexão GitHub Codespaces
 └── .zsh/                            # Diretório de módulos
     ├── 01-os-detection.zsh          # Detecta sistema operacional
-    ├── 02-path.zsh                  # Configura PATH
-    ├── 03-package-managers.zsh      # Homebrew, NVM, PNPM, .NET
-    ├── 04-aliases.zsh               # Aliases e funções
-    ├── 05-shell-enhancements.zsh    # Zoxide, TheFuck, histdb
+    ├── 02-path.zsh                  # Configura PATH (Centralizado)
+    ├── 03-package-managers.zsh      # Homebrew, Lazy NVM, PNPM, .NET
+    ├── 04-aliases.zsh               # Aliases e funções (gh, ports, etc.)
+    ├── 05-shell-enhancements.zsh    # Zoxide, TheFuck (Lazy), HistDB
     ├── 06-fzf.zsh                   # Configuração FZF
     ├── 07-omz-config.zsh            # Oh-My-Zsh e tema
     └── 08-completions.zsh           # Sistema de completions
@@ -64,296 +68,24 @@ Esta configuração ZSH foi projetada para desenvolvedores que trabalham em múl
 ### 🔍 Detalhamento dos Módulos
 
 #### `01-os-detection.zsh` - Detecção de Sistema
+- Define variáveis úteis: `$IS_MAC`, `$IS_LINUX`, `$OS_NAME`.
+- Configura `$HOMEBREW_PREFIX` automaticamente.
 
-- Detecta se está rodando em macOS ou Linux
-- Identifica arquitetura (Apple Silicon vs Intel)
-- Define variáveis úteis: `$IS_MAC`, `$IS_LINUX`, `$OS_NAME`
-- Configura `$HOMEBREW_PREFIX` automaticamente
-- Fornece funções helper: `run_on_mac()` e `run_on_linux()`
-
-#### `02-path.zsh` - Configuração de PATH
-
-- Organiza todos os PATHs necessários
-- Função `add_to_path()` que só adiciona se o diretório existir
-- Configura caminhos para: Rust, Neovim, Android SDK, etc.
-- Separa PATHs específicos por plataforma
+#### `02-path.zsh` - Configuração de PATH (Centralizado)
+- **O Ponto Único de Verdade**: Todos os PATHs de ferramentas (Antigravity, JBang, Cargo, Android SDK) são gerenciados aqui.
+- Usa a função `add_to_path()` para garantir segurança e evitar entradas duplicadas.
 
 #### `03-package-managers.zsh` - Gerenciadores de Pacotes
-
-- **Homebrew**: Detecta e inicializa automaticamente
-- **NVM**: Gerenciador de versões do Node.js
-- **PNPM**: Gerenciador de pacotes JavaScript
-- **.NET**: SDK e ferramentas
+- **Lazy Loading NVM**: Node/NPM/PNPM só são carregados quando você os executa pela primeira vez, mantendo o shell rápido.
+- **PNPM & .NET**: Configurações de ambiente e home directories.
 
 #### `04-aliases.zsh` - Aliases e Funções
-
-- Aliases para comandos do sistema
-- Aliases Git otimizados
-- Função `gh()` para add+commit+push em um comando
-- Aliases específicos por plataforma (Mac vs Linux)
+- **Git Flow (`gh`)**: Função simplificada para `add .`, `commit` e `push` em um comando.
+- **Utilitários**: Alias `ports` para listar processos em execução.
 
 #### `05-shell-enhancements.zsh` - Melhorias do Shell
-
-- **Zoxide**: Navegação inteligente de diretórios
-- **TheFuck**: Correção automática de comandos
-- **zsh-histdb**: Histórico em banco de dados SQLite
-
-#### `06-fzf.zsh` - Busca Fuzzy
-
-- Configuração do FZF com fd
-- Atalhos de teclado para busca
-- Integração com histórico de comandos
-
-#### `07-omz-config.zsh` - Oh-My-Zsh
-
-- Tema Spaceship configurado
-- Lista de plugins
-- Personalização do prompt
-
-#### `08-completions.zsh` - Autocompletar
-
-- Inicializa sistema de completions
-- Adiciona diretórios customizados ao fpath
-- Opções de styling (desabilitadas por padrão)
-
----
-
-## 🛠️ Pré-requisitos
-
-### Essenciais
-
-1. **ZSH** (geralmente já vem instalado no Mac)
-
-```bash
-# Verificar versão
-zsh --version
-
-# Tornar ZSH o shell padrão
-chsh -s $(which zsh)
-```
-
-2. **Oh-My-Zsh**
-
-```bash
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-```
-
-3. **Tema Spaceship**
-
-```bash
-git clone https://github.com/spaceship-prompt/spaceship-prompt.git \
-  "$ZSH_CUSTOM/themes/spaceship-prompt" --depth=1
-
-ln -s "$ZSH_CUSTOM/themes/spaceship-prompt/spaceship.zsh-theme" \
-  "$ZSH_CUSTOM/themes/spaceship.zsh-theme"
-```
-
-4. **Plugins Essenciais**
-
-```bash
-# zsh-syntax-highlighting
-git clone https://github.com/zsh-users/zsh-syntax-highlighting.git \
-  ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
-
-# zsh-autosuggestions
-git clone https://github.com/zsh-users/zsh-autosuggestions \
-  ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
-
-# autoupdate
-git clone https://github.com/TamCore/autoupdate-oh-my-zsh-plugins \
-  ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/autoupdate
-```
-
-### Ferramentas Opcionais (mas recomendadas)
-
-```bash
-# macOS
-brew install exa bat fd fzf zoxide thefuck
-
-# Linux (Debian/Ubuntu)
-sudo apt install exa bat fd-find fzf
-
-# Linux via Homebrew
-brew install exa bat fd fzf zoxide thefuck
-```
-
-**O que cada ferramenta faz:**
-
-- **exa**: Substituto moderno do `ls` com cores e ícones
-- **bat**: Substituto do `cat` com syntax highlighting
-- **fd**: Substituto do `find` mais rápido e intuitivo
-- **fzf**: Busca fuzzy interativa
-- **zoxide**: `cd` inteligente que aprende seus diretórios mais usados
-- **thefuck**: Corrige comandos digitados incorretamente
-
----
-
-## 📥 Instalação
-
-### Método 1: Manual (Recomendado)
-
-```bash
-# 1. Fazer backup do .zshrc atual
-cp ~/.zshrc ~/.zshrc.backup.$(date +%Y%m%d)
-
-# 2. Criar estrutura de diretórios
-mkdir -p ~/.zsh
-
-# 3. Criar cada módulo
-# Copie o conteúdo de cada módulo do artifact "Todos os Módulos ZSH"
-
-nano ~/.zsh/01-os-detection.zsh
-nano ~/.zsh/02-path.zsh
-nano ~/.zsh/03-package-managers.zsh
-nano ~/.zsh/04-aliases.zsh
-nano ~/.zsh/05-shell-enhancements.zsh
-nano ~/.zsh/06-fzf.zsh
-nano ~/.zsh/07-omz-config.zsh
-nano ~/.zsh/08-completions.zsh
-
-# 4. Criar o .zshrc principal
-nano ~/.zshrc
-# Cole o conteúdo do "Arquivo 9: ~/.zshrc (Loader Principal)"
-
-# 5. Recarregar
-source ~/.zshrc
-```
-
-### Método 2: Script Automatizado
-
-```bash
-#!/bin/bash
-# save-as: install-zsh-config.sh
-
-# Backup
-cp ~/.zshrc ~/.zshrc.backup.$(date +%Y%m%d) 2>/dev/null
-
-# Criar estrutura
-mkdir -p ~/.zsh
-
-echo "✅ Estrutura criada!"
-echo "📝 Agora copie o conteúdo de cada módulo para ~/.zsh/"
-echo "   Use o artifact 'Todos os Módulos ZSH' como referência"
-```
-
----
-
-## 🎯 Como Funciona
-
-### Fluxo de Carregamento
-
-```
-1. ~/.zshrc é lido pelo ZSH
-         ↓
-2. Verifica se ~/.zsh/ existe
-         ↓
-3. Carrega módulos em ordem alfabética:
-   01-os-detection.zsh    → Define $IS_MAC, $IS_LINUX
-   02-path.zsh            → Configura PATH
-   03-package-managers.zsh → Inicializa Homebrew, NVM, etc
-   04-aliases.zsh         → Define aliases
-   05-shell-enhancements.zsh → Carrega zoxide, thefuck
-   06-fzf.zsh             → Configura FZF
-   07-omz-config.zsh      → Carrega Oh-My-Zsh
-   08-completions.zsh     → Inicializa completions
-         ↓
-4. Carrega ~/.secrets.zsh (se existir)
-         ↓
-5. Carrega ~/.zshrc.local (se existir)
-         ↓
-6. Shell pronto para uso! 🎉
-```
-
-### Detecção Automática de Plataforma
-
-```bash
-# No módulo 01-os-detection.zsh
-
-# Variáveis disponíveis após carregar:
-$IS_MAC           # true se macOS, false se Linux
-$IS_LINUX         # true se Linux, false se macOS
-$OS_NAME          # "macOS" ou "Linux"
-$HOMEBREW_PREFIX  # "/opt/homebrew" ou "/usr/local" ou "/home/linuxbrew/.linuxbrew"
-
-# Funções helper:
-run_on_mac "comando"    # Executa apenas no Mac
-run_on_linux "comando"  # Executa apenas no Linux
-```
-
-**Exemplo de uso:**
-
-```bash
-# No seu próprio script ou .zshrc.local
-run_on_mac "echo 'Estou no Mac!'"
-run_on_linux "echo 'Estou no Linux!'"
-```
-
----
-
-## 🎨 Personalização
-
-### Adicionar suas próprias configurações
-
-#### Opção 1: Arquivo de Secrets (`~/.secrets.zsh`)
-
-Para tokens, chaves de API e variáveis sensíveis:
-
-```bash
-# ~/.secrets.zsh
-export GITHUB_TOKEN="ghp_xxxxxxxxxxxxx"
-export OPENAI_API_KEY="sk-xxxxxxxxxxxxx"
-export AWS_ACCESS_KEY_ID="xxxxxxxxxxxxx"
-```
-
-#### Opção 2: Arquivo Local (`~/.zshrc.local`)
-
-Para configurações específicas da máquina:
-
-```bash
-# ~/.zshrc.local
-
-# Aliases específicos desta máquina
-alias work="cd ~/Projects/work"
-alias personal="cd ~/Projects/personal"
-
-# Configurações específicas
-export EDITOR="nvim"
-export VISUAL="nvim"
-```
-
-#### Opção 3: Criar seu próprio módulo
-
-```bash
-# ~/.zsh/09-custom.zsh
-
-# Suas configurações customizadas
-export MY_VAR="value"
-
-my_function() {
-  echo "Minha função customizada"
-}
-```
-
-### Desabilitar um módulo
-
-Simplesmente renomeie o arquivo para remover a extensão `.zsh`:
-
-```bash
-# Desabilitar FZF temporariamente
-mv ~/.zsh/06-fzf.zsh ~/.zsh/06-fzf.zsh.disabled
-
-# Reabilitar
-mv ~/.zsh/06-fzf.zsh.disabled ~/.zsh/06-fzf.zsh
-```
-
-### Modificar ordem de carregamento
-
-Os módulos são carregados em ordem alfabética. Para mudar a ordem, renomeie os arquivos:
-
-```bash
-# Carregar suas configs antes dos aliases
-mv ~/.zsh/09-custom.zsh ~/.zsh/03.5-custom.zsh
-```
+- **Lazy Loading TheFuck**: Carrega o comando `fuck` sob demanda.
+- **Smarter Suggestions**: `zsh-histdb` integrado para sugerir comandos baseados no seu diretório atual.
 
 ---
 
@@ -365,240 +97,75 @@ mv ~/.zsh/09-custom.zsh ~/.zsh/03.5-custom.zsh
 | -------- | ----------------- | ----------------------------------- |
 | `c`      | `clear`           | Limpa a tela                        |
 | `reload` | `source ~/.zshrc` | Recarrega configurações             |
-| `ls`     | `exa --icons`     | Lista com ícones (se exa instalado) |
-| `cat`    | `bat`             | Visualiza com syntax highlight      |
+| `ls`     | `eza/exa --icons` | Lista moderna com ícones            |
+| `ports`  | `lsof (LISTEN)`   | Mostra portas em uso                |
+| `dot`    | `cd ~/dotfiles`   | Atalho para seus dotfiles           |
 
 ### Git
 
 | Alias      | Comando                     | Descrição                  |
 | ---------- | --------------------------- | -------------------------- |
-| `ga`       | `git add .`                 | Adiciona todos os arquivos |
+| `ga`       | `git add`                   | Prepara arquivos           |
+| `gaa`      | `git add .`                 | Adiciona todos os arquivos |
 | `gs`       | `git status`                | Status do repositório      |
 | `gc "msg"` | `git commit -m "msg"`       | Commit com mensagem        |
 | `gp`       | `git push`                  | Push para remote           |
-| `gpoh`     | `git push origin HEAD`      | Push da branch atual       |
 | `gpl`      | `git pull`                  | Pull do remote             |
-| `gco`      | `git checkout`              | Muda de branch             |
-| `gcb`      | `git checkout -b`           | Cria nova branch           |
 | `glog`     | `git log --oneline --graph` | Log visual                 |
 
-### Função Especial: `gh`
+### Função Especial: `gh` (Git Flow)
 
-Executa add + commit + push em um único comando:
+Executa o fluxo completo (add + commit + push) em um único comando:
 
 ```bash
 # Uso
 gh "minha mensagem de commit"
-
-# Saída
-📦 Adicionando arquivos...
-💬 Commitando: minha mensagem de commit
-🚀 Fazendo push...
-✅ Concluído!
 ```
 
-### Navegação
+---
 
-| Alias  | Comando       | Descrição            |
-| ------ | ------------- | -------------------- |
-| `..`   | `cd ..`       | Sobe um diretório    |
-| `...`  | `cd ../..`    | Sobe dois diretórios |
-| `....` | `cd ../../..` | Sobe três diretórios |
+## 🚀 Utilitários e Scripts
 
-### Específicos do Mac
+### `codespace-connect`
+Localizado em `~/dotfiles/zshrc/bin`, este script permite conectar ao GitHub Codespaces via túnel SSH.
 
-| Alias       | Comando                            | Descrição |
-| ----------- | ---------------------------------- | --------- |
-| `showfiles` | Mostra arquivos ocultos no Finder  |
-| `hidefiles` | Esconde arquivos ocultos no Finder |
+- **Conecte com facilidade**: Menu interativo para selecionar o Codespace.
+- **Auto-start**: Inicia Codespaces que estão parados.
+- **Configuração SSH**: Gerencia automaticamente o host `codespace-local` no seu `~/.ssh/config`.
+
+```bash
+# Uso simples
+codespace-connect
+
+# Filtrando por repositório
+codespace-connect owner/repo
+```
+
+---
+
+## 🎨 Personalização
+
+### Adicionar suas próprias configurações
+
+#### Opção 1: Arquivo de Secrets (`~/.secrets.zsh`)
+Para tokens e chaves de API. **Nunca commite este arquivo.**
+
+#### Opção 2: Arquivo Local (`~/.zshrc.local`)
+Configurações específicas da máquina onde os dotfiles estão instalados.
+
+#### Opção 3: Criar seu próprio módulo
+Adicione um arquivo `.zsh` em `~/.zsh/` para que ele seja carregado automaticamente.
 
 ---
 
 ## 🐛 Troubleshooting
 
-### Problema: "command not found: brew"
-
-**Causa:** Homebrew não instalado ou não está no PATH
-
-**Solução:**
-
-```bash
-# Verificar se está instalado
-ls -la /opt/homebrew/bin/brew      # Apple Silicon
-ls -la /usr/local/bin/brew         # Intel Mac
-ls -la /home/linuxbrew/.linuxbrew/bin/brew  # Linux
-
-# Se não estiver instalado:
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-```
-
-### Problema: Plugin não encontrado
-
-**Causa:** Plugin do Oh-My-Zsh não instalado
-
-**Solução:**
-
-```bash
-# Verificar plugins instalados
-ls ~/.oh-my-zsh/custom/plugins/
-
-# Reinstalar plugin específico (exemplo: zsh-syntax-highlighting)
-git clone https://github.com/zsh-users/zsh-syntax-highlighting.git \
-  ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
-```
-
-### Problema: Tema Spaceship não carrega
-
-**Causa:** Tema não instalado corretamente
-
-**Solução:**
-
-```bash
-# Verificar instalação
-ls -la ~/.oh-my-zsh/custom/themes/spaceship.zsh-theme
-
-# Reinstalar
-git clone https://github.com/spaceship-prompt/spaceship-prompt.git \
-  "$ZSH_CUSTOM/themes/spaceship-prompt" --depth=1
-
-ln -sf "$ZSH_CUSTOM/themes/spaceship-prompt/spaceship.zsh-theme" \
-  "$ZSH_CUSTOM/themes/spaceship.zsh-theme"
-
-# Recarregar
-source ~/.zshrc
-```
-
-### Problema: Caracteres quebrados (^M)
-
-**Causa:** Arquivo editado no Windows com CRLF
-
-**Solução:**
-
-```bash
-# Converter para Unix (LF)
-dos2unix ~/.zshrc ~/.zsh/*.zsh
-
-# Ou com sed
-sed -i '' 's/\r$//' ~/.zshrc
-sed -i '' 's/\r$//' ~/.zsh/*.zsh
-```
-
-### Problema: "zsh compinit: insecure directories"
-
-**Causa:** Permissões incorretas em diretórios do Oh-My-Zsh
-
-**Solução:**
-
-```bash
-# Corrigir permissões
-chmod -R 755 ~/.oh-my-zsh
-compaudit | xargs chmod g-w
-```
-
-### Problema: Módulos não carregam
-
-**Causa:** Diretório ~/.zsh não existe ou está vazio
-
-**Solução:**
-
-```bash
-# Verificar
-ls -la ~/.zsh/
-
-# Recriar se necessário
-mkdir -p ~/.zsh
-# Copiar módulos novamente
-```
-
----
-
-## ❓ FAQ
-
-### Q: Preciso instalar todas as ferramentas opcionais?
-
-**R:** Não! A configuração verifica se cada ferramenta existe antes de usá-la. Se `exa` não estiver instalado, o alias `ls` usará o `ls` padrão. O mesmo vale para `bat`, `fd`, `zoxide`, etc.
-
-### Q: Posso usar esta configuração junto com minha atual?
-
-**R:** Sim! Faça backup do seu `.zshrc` atual e você pode mesclar as configurações ou usar apenas módulos específicos.
-
-### Q: Como adiciono meus próprios aliases?
-
-**R:** Três opções:
-
-1. Adicione em `~/.zsh/04-aliases.zsh`
-2. Crie `~/.zshrc.local` com seus aliases
-3. Crie seu próprio módulo `~/.zsh/09-custom.zsh`
-
-### Q: A configuração deixa o shell mais lento?
-
-**R:** Não significativamente. Os módulos são carregados uma vez ao iniciar o shell. O tempo de carregamento típico é < 1 segundo.
-
-### Q: Posso usar no Bash?
-
-**R:** Esta configuração é específica para ZSH, mas os conceitos podem ser adaptados para Bash.
-
-### Q: Como atualizo os plugins?
-
-**R:**
-
-```bash
-# Oh-My-Zsh
-omz update
-
-# Plugins custom
-cd ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
-git pull
-
-cd ~/.oh-my-zsh/custom/plugins/zsh-autosuggestions
-git pull
-```
-
-### Q: Como desinstalo?
-
-**R:**
-
-```bash
-# Restaurar backup
-cp ~/.zshrc.backup ~/.zshrc
-
-# Remover módulos (opcional)
-rm -rf ~/.zsh
-
-# Recarregar
-source ~/.zshrc
-```
-
----
-
-## 📚 Recursos Úteis
-
-- [Oh-My-Zsh](https://ohmyz.sh/) - Framework para gerenciar configuração ZSH
-- [Spaceship Prompt](https://spaceship-prompt.sh/) - Prompt minimalista e poderoso
-- [FZF](https://github.com/junegunn/fzf) - Fuzzy finder de linha de comando
-- [Zoxide](https://github.com/ajeetdsouza/zoxide) - cd mais inteligente
-- [exa](https://github.com/ogham/exa) - ls moderno
-- [bat](https://github.com/sharkdp/bat) - cat com asas
-- [fd](https://github.com/sharkdp/fd) - find simplificado
+### Problema: Shell lento após instalação de ferramentas
+**Causa**: Algumas ferramentas adicionam comandos ao `.zshrc` ou módulos que carregam scripts pesados.
+**Solução**: Verifique o `03-package-managers.zsh` e implemente o wrapper de lazy loading similar ao do NVM.
 
 ---
 
 ## 📄 Licença
 
 MIT - Use como quiser, compartilhe, modifique!
-
----
-
-## 💡 Dicas Finais
-
-1. **Comece simples**: Não ative tudo de uma vez. Vá adicionando ferramentas conforme precisar.
-
-2. **Faça backups**: Sempre antes de grandes mudanças.
-
-3. **Use .secrets.zsh**: Nunca commite tokens ou senhas no Git.
-
-4. **Explore os plugins**: Oh-My-Zsh tem centenas de plugins úteis.
-
-5. **Aprenda os atalhos**: FZF e Zoxide vão economizar muito tempo.
-
----

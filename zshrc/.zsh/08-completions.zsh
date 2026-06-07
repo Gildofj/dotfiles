@@ -12,10 +12,10 @@ compinit
 
 # Completion styling (opcional)
 # Case-insensitive completion
-# zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
 
 # Colorful completion
-# zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
+zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
 
 # Menu selection
-# zstyle ':completion:*' menu select
+zstyle ':completion:*' menu select
