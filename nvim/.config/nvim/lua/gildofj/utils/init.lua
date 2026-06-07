@@ -12,9 +12,9 @@ setmetatable(M, {
   end,
 })
 
----@param val string
+---@param val any
 M.inspect = function(val)
-  return vim.inpect(val)
+  return vim.inspect(val)
 end
 
 function M.is_win()
@@ -45,12 +45,6 @@ M.is_dir = function(path)
   return stat and stat.type == "directory"
 end
 
-M.root_dir = function()
-  local cwd = vim.uv.cwd()
-  local root = vim.fs.find({ ".git" }, { upward = true, path = cwd })[1]
-  return root and vim.fs.dirname(root) or cwd
-end
-
 M.open = function(path)
   path = M.norm(path)
   if vim.fn.has("win32") == 1 then
@@ -66,75 +60,48 @@ end
 ---@field title? string
 ---@field timeout? number
 
----@param lines string[]
----@param opts InfoParams
+---@param lines string|string[]
+---@param opts? InfoParams
 M.info = function(lines, opts)
   opts = opts or {}
-  local msg = table.concat(lines, "\n")
+  local msg = type(lines) == "table" and table.concat(lines, "\n") or lines
   vim.notify(msg, vim.log.levels.INFO, {
     title = opts.title or "Info",
     timeout = opts.timeout or 3000,
   })
 end
 
----@param lines string[]
----@param opts InfoParams
+---@param lines string|string[]
+---@param opts? InfoParams
 M.warn = function(lines, opts)
   opts = opts or {}
-  local msg = table.concat(lines, "\n")
+  local msg = type(lines) == "table" and table.concat(lines, "\n") or lines
   vim.notify(msg, vim.log.levels.WARN, {
-    title = opts.title or "Info",
+    title = opts.title or "Warning",
     timeout = opts.timeout or 3000,
   })
 end
 
----@param lines string[]
----@param opts InfoParams
+---@param lines string|string[]
+---@param opts? InfoParams
 M.error = function(lines, opts)
   opts = opts or {}
-  local msg = table.concat(lines, "\n")
+  local msg = type(lines) == "table" and table.concat(lines, "\n") or lines
   vim.notify(msg, vim.log.levels.ERROR, {
-    title = opts.title or "Info",
+    title = opts.title or "Error",
     timeout = opts.timeout or 3000,
   })
 end
 
-local _defaults = {} ---@type table<string, boolean>
-
--- Determines whether it's safe to set an option to a default value.
---
--- It will only set the option if:
--- * it is the same as the global value
--- * it's current value is a default value
--- * it was last set by a script in $VIMRUNTIME
----@param option string
----@param value string|number|boolean
----@return boolean was_set
+-- Determina se é seguro definir uma opção para um valor padrão.
 function M.set_default(option, value)
   local l = vim.api.nvim_get_option_value(option, { scope = "local" })
   local g = vim.api.nvim_get_option_value(option, { scope = "global" })
-
-  _defaults[("%s=%s"):format(option, value)] = true
-  local key = ("%s=%s"):format(option, l)
-
-  local source = ""
-  if l ~= g and not _defaults[key] then
-    -- Option does not match global and is not a default value
-    -- Check if it was set by a script in $VIMRUNTIME
-    local info = vim.api.nvim_get_option_info2(option, { scope = "local" })
-    ---@param e vim.fn.getscriptinfo.ret
-    local scriptinfo = vim.tbl_filter(function(e)
-      return e.sid == info.last_set_sid
-    end, vim.fn.getscriptinfo())
-    source = scriptinfo[1] and scriptinfo[1].name or ""
-    local by_rtp = #scriptinfo == 1 and vim.startswith(scriptinfo[1].name, vim.fn.expand("$VIMRUNTIME"))
-    if not by_rtp then
-      return false
-    end
+  if l == g then
+    vim.api.nvim_set_option_value(option, value, { scope = "local" })
+    return true
   end
-
-  vim.api.nvim_set_option_value(option, value, { scope = "local" })
-  return true
+  return false
 end
 
 return M

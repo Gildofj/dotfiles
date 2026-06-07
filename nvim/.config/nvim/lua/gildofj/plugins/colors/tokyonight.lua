@@ -1,0 +1,14 @@
+return {
+  "folke/tokyonight.nvim",
+  lazy = false,
+  priority = 1000,
+  opts = {
+    style = "moon",
+    light_style = "day",
+    transparent = false,
+    styles = {
+      sidebars = "transparent",
+      floats = "transparent",
+    },
+  },
+}
