@@ -3,21 +3,25 @@
 # ============================================================================
 
 # --- Homebrew ---
-setup_homebrew() {
-  local brew_path="${HOMEBREW_PREFIX}/bin/brew"
-  
-  if [[ -f "$brew_path" ]]; then
-    eval "$($brew_path shellenv)"
-    return 0
-  fi
-  return 1
-}
-setup_homebrew
+if [[ -f "${HOMEBREW_PREFIX}/bin/brew" ]]; then
+  eval "$(${HOMEBREW_PREFIX}/bin/brew shellenv)"
+fi
 
-# --- NVM (Node Version Manager) ---
+# --- NVM (Node Version Manager) - LAZY LOADING ---
+# Melhora significativamente a velocidade de abertura do terminal
 export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+if [[ -s "$NVM_DIR/nvm.sh" ]]; then
+  nvm() {
+    unset -f nvm node npm npx pnpm
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+    nvm "$@"
+  }
+  
+  # Lazy load node/npm/npx/pnpm
+  node() { unset -f nvm node npm npx pnpm; [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"; node "$@" }
+  npm()  { unset -f nvm node npm npx pnpm; [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"; npm "$@" }
+  npx()  { unset -f nvm node npm npx pnpm; [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"; npx "$@" }
+fi
 
 # --- PNPM ---
 if [[ "$IS_MAC" == true ]]; then
@@ -25,11 +29,7 @@ if [[ "$IS_MAC" == true ]]; then
 else
   export PNPM_HOME="$HOME/.local/share/pnpm"
 fi
-
-case ":$PATH:" in
-  *":$PNPM_HOME:"*) ;;
-  *) export PATH="$PNPM_HOME:$PATH" ;;
-esac
+[[ -d "$PNPM_HOME" ]] && export PATH="$PNPM_HOME:$PATH"
 
 # --- .NET ---
 if [[ -d "/usr/local/share/dotnet" ]]; then

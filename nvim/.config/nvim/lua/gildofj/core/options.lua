@@ -1,7 +1,4 @@
 -- global settings
-vim.g.mapleader = " "
-vim.g.maplocalleader = "\\"
-
 vim.g.autoformat = true
 vim.g.ai_cmp = true
 

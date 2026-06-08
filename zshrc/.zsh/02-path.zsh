@@ -11,18 +11,34 @@ add_to_path() {
 }
 
 # Path base
-export PATH="$HOME/bin:/usr/local/bin:/sbin:$PATH"
+export PATH="$HOME/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH"
 
-# User directories
+# Custom tools & scripts
+add_to_path "$HOME/dotfiles/zshrc/bin"
+add_to_path "$HOME/.antigravity/antigravity/bin"
 add_to_path "$HOME/.local/bin"
-add_to_path "$HOME/.local/share"
 
-# Development tools
+# Development environments
 add_to_path "$HOME/.cargo/bin"                          # Rust
 add_to_path "$HOME/.local/share/bob/nvim-bin"           # Neovim
-add_to_path "/usr/local/opt/rustup/bin"                 # Rustup
+add_to_path "$HOME/.jbang/bin"                         # JBang
 
 # Platform-specific paths
 if [[ "$IS_MAC" == true ]]; then
-  add_to_path "$HOME/Library/Android/sdk/cmdline-tools/latest/bin"  # Android SDK
+  add_to_path "$HOME/Library/Android/sdk/cmdline-tools/latest/bin"
+  
+  # Android NDK
+  export ANDROID_NDK_ROOT="/Users/gildojunior/Library/Android/sdk/ndk/29.0.14206865"
+  if [[ -d "$ANDROID_NDK_ROOT" ]]; then
+    export TOOLCHAIN="$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/darwin-x86_64"
+    add_to_path "$TOOLCHAIN/bin"
+    
+    export CC="$TOOLCHAIN/bin/aarch64-linux-android29-clang"
+    export CXX="$TOOLCHAIN/bin/aarch64-linux-android29-clang++"
+  fi
+
+  # Java
+  if [[ -x "/usr/libexec/java_home" ]]; then
+    export JAVA_HOME=$(/usr/libexec/java_home -v 21 2>/dev/null)
+  fi
 fi

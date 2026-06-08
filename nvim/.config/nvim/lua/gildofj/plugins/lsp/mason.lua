@@ -5,12 +5,8 @@ return {
     "WhoIsSethDaniel/mason-tool-installer.nvim",
     "hrsh7th/cmp-nvim-lsp",
     { "antosha417/nvim-lsp-file-operations", config = true },
-    {
-      "mrcjkb/rustaceanvim",
-      version = "^6", -- Recommended
-      lazy = false, -- This plugin is already lazy
-    },
   },
+  event = { "BufReadPre", "BufNewFile" },
   config = function()
     local mason = require("mason")
     local mason_tool_installer = require("mason-tool-installer")
@@ -29,14 +25,16 @@ return {
 
     mason_tool_installer.setup({
       ensure_installed = {
-        "prettierd", -- js/ts formatter
-        "stylua", -- lua formatter
-        "rust-analyzer", -- rust formatter
-        "eslint_d", -- js/ts linter
-        "ruff", -- python linter
-        "pyright", -- python formatter
+        "prettierd", -- JS/TS formatter
+        "stylua", -- Lua formatter
+        "rust-analyzer", -- Rust LSP
+        "eslint_d", -- JS/TS linter
+        "ruff", -- Python linter & formatter
+        "pyright", -- Python LSP
       },
-      auto_update = true,
+      auto_update = false, -- Manually run :MasonToolsUpdate to save resources on startup
+      run_on_start = true,
+      start_delay = 3000, -- Delay installation checks by 3 seconds to prioritize UI responsiveness
     })
 
     mason_lsp_config.setup({

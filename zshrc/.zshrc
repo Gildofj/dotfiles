@@ -17,21 +17,10 @@ fi
 # ============================================================================
 # CONFIGURAÇÕES PRIVADAS
 # ============================================================================
-# Carregue suas variáveis de ambiente privadas aqui
-# Exemplo: tokens, keys, senhas, etc.
+# Carregue suas variáveis de ambiente privadas aqui (tokens, keys, etc.)
 [[ -f "$HOME/.secrets.zsh" ]] && source "$HOME/.secrets.zsh"
 
 # ============================================================================
 # CONFIGURAÇÕES ESPECÍFICAS DA MÁQUINA
 # ============================================================================
-# Se você tem configurações específicas para esta máquina
 [[ -f "$HOME/.zshrc.local" ]] && source "$HOME/.zshrc.local"
-
-# ============================================================================
-# OPCIONAL: TMUX AUTO-START
-# ============================================================================
-# Descomente para iniciar tmux automaticamente
-# if command -v tmux &> /dev/null && [ -z "$TMUX" ]; then
-#   tmux list-sessions | grep -v attached | cut -d: -f1 | xargs -I {} tmux kill-session -t {} 2>/dev/null
-#   tmux new-session
-# fi

@@ -11,3 +11,13 @@ vim.api.nvim_create_autocmd("TextYankPost", {
     })
   end,
 })
+
+-- Persistence: Save theme on change
+vim.api.nvim_create_autocmd("ColorScheme", {
+  callback = function()
+    local theme = vim.g.colors_name
+    if theme then
+      require("gildofj.core.theme").save(theme)
+    end
+  end,
+})

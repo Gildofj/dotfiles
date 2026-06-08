@@ -58,6 +58,10 @@ return {
       vim.keymap.set("n", "<leader>fs", builtin.live_grep, opts)
       opts.desc = "Find string under cursor"
       vim.keymap.set("n", "<leader>fc", builtin.grep_string, opts)
+      opts.desc = "Switch Colorscheme with preview"
+      vim.keymap.set("n", "<leader>th", function()
+        builtin.colorscheme({ enable_preview = true })
+      end, opts)
     end,
   },
 }

@@ -1,0 +1,268 @@
+#!/bin/bash
+# codespace-connect — conecta ao GitHub Codespace via tunnel e expõe na porta 2222
+# Uso: codespace-connect [repo]
+#   repo: opcional, filtra codespaces pelo nome do repositório
+
+set -euo pipefail
+
+PORT=2222
+SSH_CONFIG_HOST="codespace-local"
+IDENTITY_FILE="$HOME/.ssh/codespaces.auto"
+
+# Cores
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+RED='\033[0;31m'
+CYAN='\033[0;36m'
+BOLD='\033[1m'
+NC='\033[0m'
+
+log()    { echo -e "${CYAN}→${NC} $*"; }
+ok()     { echo -e "${GREEN}✓${NC} $*"; }
+warn()   { echo -e "${YELLOW}⚠${NC} $*"; }
+err()    { echo -e "${RED}✗${NC} $*" >&2; }
+
+# Verifica dependências
+if ! command -v gh &>/dev/null; then
+    err "GitHub CLI (gh) não encontrado. Instale com: brew install gh"
+    exit 1
+fi
+
+if ! gh auth status &>/dev/null; then
+    err "Não autenticado no GitHub CLI. Execute: gh auth login"
+    exit 1
+fi
+
+# Mata tunnel anterior na porta se existir
+kill_existing_tunnel() {
+    local pid
+    pid=$(lsof -ti ":$PORT" 2>/dev/null || true)
+    if [[ -n "$pid" ]]; then
+        warn "Encerrando tunnel anterior na porta $PORT (PID $pid)..."
+        kill "$pid" 2>/dev/null || true
+        sleep 1
+    fi
+}
+
+# Busca lista de codespaces
+fetch_codespaces() {
+    local repo_filter="${1:-}"
+    local query='.[] | "\(.name)|\(.repository)|\(.state)"'
+
+    if [[ -n "$repo_filter" ]]; then
+        gh codespace list --repo "$repo_filter" --json name,repository,state --jq "$query" 2>/dev/null
+    else
+        gh codespace list --json name,repository,state --jq "$query" 2>/dev/null
+    fi
+}
+
+# Menu interativo de seleção
+select_codespace() {
+    local -a names repos states
+    local raw="$1"
+    local i=0
+
+    while IFS='|' read -r name repo state; do
+        names+=("$name")
+        repos+=("$repo")
+        states+=("$state")
+        ((i++))
+    done <<< "$raw"
+
+    if [[ ${#names[@]} -eq 0 ]]; then
+        err "Nenhum Codespace encontrado."
+        exit 1
+    fi
+
+    if [[ ${#names[@]} -eq 1 ]]; then
+        SELECTED_NAME="${names[0]}"
+        SELECTED_REPO="${repos[0]}"
+        SELECTED_STATE="${states[0]}"
+        return
+    fi
+
+    echo ""
+    echo -e "${BOLD}Selecione um Codespace:${NC}"
+    echo ""
+    for j in "${!names[@]}"; do
+        local state_icon="🟢"
+        [[ "${states[$j]}" != "Available" ]] && state_icon="🔴"
+        printf "  ${CYAN}%d)${NC} %-45s ${YELLOW}%s${NC} %s\n" \
+            $((j+1)) "${names[$j]}" "${repos[$j]}" "$state_icon"
+    done
+    echo ""
+
+    local choice
+    while true; do
+        read -rp "$(echo -e "${BOLD}Número:${NC} ")" choice
+        if [[ "$choice" =~ ^[0-9]+$ ]] && (( choice >= 1 && choice <= ${#names[@]} )); then
+            SELECTED_NAME="${names[$((choice-1))]}"
+            SELECTED_REPO="${repos[$((choice-1))]}"
+            SELECTED_STATE="${states[$((choice-1))]}"
+            break
+        fi
+        warn "Opção inválida. Digite um número entre 1 e ${#names[@]}."
+    done
+}
+
+# Inicia o Codespace se estiver parado
+ensure_running() {
+    local name="$1"
+    local state="$2"
+
+    if [[ "$state" == "Available" ]]; then
+        ok "Codespace já está ativo."
+        return
+    fi
+
+    warn "Codespace está '${state}'. Iniciando automaticamente..."
+    gh codespace stop --codespace "$name" &>/dev/null || true
+    gh codespace start --codespace "$name"
+
+    log "Aguardando Codespace ficar disponível..."
+    local attempts=0
+    while true; do
+        local current_state
+        current_state=$(gh codespace list --json name,state --jq \
+            ".[] | select(.name==\"$name\") | .state" 2>/dev/null)
+
+        if [[ "$current_state" == "Available" ]]; then
+            ok "Codespace disponível."
+            break
+        fi
+
+        ((attempts++))
+        if (( attempts > 30 )); then
+            err "Timeout aguardando Codespace iniciar."
+            exit 1
+        fi
+
+        printf "."
+        sleep 3
+    done
+    echo ""
+}
+
+# Garante que o SSH config está correto
+ensure_ssh_config() {
+    local config="$HOME/.ssh/config"
+    local marker="# codespace-connect managed"
+
+    # Remove bloco anterior se existir
+    if grep -q "$marker" "$config" 2>/dev/null; then
+        # Remove bloco entre os marcadores
+        sed -i.bak "/^$marker START/,/^$marker END/d" "$config" 2>/dev/null || \
+        perl -i -0pe "s/\n?# codespace-connect managed START.*?# codespace-connect managed END\n?//s" "$config"
+    fi
+
+    # Adiciona bloco atualizado
+    cat >> "$config" << EOF
+
+$marker START
+Host $SSH_CONFIG_HOST
+    HostName 127.0.0.1
+    Port $PORT
+    User codespace
+    IdentityFile $IDENTITY_FILE
+    StrictHostKeyChecking no
+    NoHostAuthenticationForLocalhost yes
+    PasswordAuthentication no
+$marker END
+EOF
+
+    chmod 600 "$config"
+}
+
+# Sobe o tunnel SSH
+start_tunnel() {
+    local name="$1"
+
+    kill_existing_tunnel
+
+    log "Abrindo tunnel SSH para '$name' na porta $PORT..."
+
+    gh codespace ssh --codespace "$name" -- \
+        -N \
+        -L "${PORT}:localhost:2222" \
+        -o StrictHostKeyChecking=no \
+        -o NoHostAuthenticationForLocalhost=yes \
+        &
+
+    TUNNEL_PID=$!
+
+    # Aguarda tunnel estabilizar
+    local attempts=0
+    while ! lsof -ti ":$PORT" &>/dev/null; do
+        sleep 0.5
+        ((attempts++))
+        if (( attempts > 20 )); then
+            err "Tunnel não subiu na porta $PORT."
+            exit 1
+        fi
+    done
+
+    ok "Tunnel ativo na porta $PORT (PID $TUNNEL_PID)"
+}
+
+# Testa a conexão SSH
+test_connection() {
+    log "Testando conexão SSH..."
+    if ssh -q \
+        -o StrictHostKeyChecking=no \
+        -o NoHostAuthenticationForLocalhost=yes \
+        -o ConnectTimeout=5 \
+        -i "$IDENTITY_FILE" \
+        -p "$PORT" \
+        codespace@127.0.0.1 \
+        "echo ok" &>/dev/null; then
+        ok "Conexão SSH funcionando."
+    else
+        warn "Conexão SSH ainda não respondeu — tente conectar pelo Antigravity em instantes."
+    fi
+}
+
+# ─── Main ────────────────────────────────────────────────────────────────────
+
+REPO_FILTER="${1:-}"
+
+echo ""
+echo -e "${BOLD}╔══════════════════════════════════╗${NC}"
+echo -e "${BOLD}║     codespace-connect  🚀        ║${NC}"
+echo -e "${BOLD}╚══════════════════════════════════╝${NC}"
+echo ""
+
+log "Buscando Codespaces${REPO_FILTER:+ para '$REPO_FILTER'}..."
+
+RAW=$(fetch_codespaces "$REPO_FILTER")
+
+if [[ -z "$RAW" ]]; then
+    err "Nenhum Codespace encontrado${REPO_FILTER:+ para o repositório '$REPO_FILTER'}."
+    exit 1
+fi
+
+select_codespace "$RAW"
+
+echo ""
+ok "Selecionado: ${BOLD}$SELECTED_NAME${NC} (${SELECTED_REPO})"
+
+ensure_running "$SELECTED_NAME" "$SELECTED_STATE"
+ensure_ssh_config
+start_tunnel "$SELECTED_NAME"
+test_connection
+
+echo ""
+echo -e "${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e " Conecte o ${BOLD}Antigravity${NC} em:"
+echo -e "   Host: ${GREEN}${BOLD}$SSH_CONFIG_HOST${NC}"
+echo -e "   ou:   ${GREEN}${BOLD}127.0.0.1:$PORT${NC}"
+echo -e "${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo ""
+echo -e " Para filtrar por repo: ${CYAN}codespace-connect owner/repo${NC}"
+echo -e " Para encerrar o tunnel: ${CYAN}kill $TUNNEL_PID${NC}"
+echo ""
+
+# Mantém o script vivo mostrando status
+trap "echo ''; warn 'Tunnel encerrado.'; kill $TUNNEL_PID 2>/dev/null; exit 0" INT TERM
+
+echo -e "${YELLOW}Pressione Ctrl+C para encerrar o tunnel.${NC}"
+wait $TUNNEL_PID
