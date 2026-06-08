@@ -18,7 +18,7 @@ function gpoh {
   git push origin HEAD
 }
 
-function gh($message) {
+function gacp($message) {
   if (-not $message) {
     Write-Host "Por favor, forneça uma mensagem de commit."
   } else {
