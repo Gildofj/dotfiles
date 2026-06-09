@@ -16,9 +16,9 @@ if command -v thefuck &> /dev/null; then
 fi
 
 # --- zsh-histdb ---
-HISTDB_FILE="${HOME}/.oh-my-zsh/custom/plugins/zsh-histdb/sqlite-history.zsh"
-if [[ -f "$HISTDB_FILE" ]]; then
-  source "$HISTDB_FILE"
+HISTDB_SCRIPT="${HOME}/.oh-my-zsh/custom/plugins/zsh-histdb/sqlite-history.zsh"
+if [[ -f "$HISTDB_SCRIPT" ]]; then
+  source "$HISTDB_SCRIPT"
   
   # Estratégia de autosuggestion usando o HistDB (comandos mais frequentes por diretório)
   if [[ -n "$functions[_zsh_autosuggest_start]" ]]; then
