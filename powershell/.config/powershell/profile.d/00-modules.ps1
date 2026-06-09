@@ -1,3 +1,37 @@
-#TODO: Add verifications to warn that this modules not installed
-Import-Module -Name Terminal-Icons
-Import-Module -Name PSReadLine
+# Verify and load PSReadLine
+if (Get-Module -ListAvailable -Name PSReadLine) {
+    Import-Module -Name PSReadLine
+    
+    # Configure PSReadLine Options for modern workflow (safely caught in non-VT/redirected contexts)
+    try {
+        Set-PSReadLineOption -PredictionSource HistoryAndPlugin
+        Set-PSReadLineOption -PredictionViewStyle InlineView
+        Set-PSReadLineOption -HistorySearchCursorMovesToEnd
+    } catch {}
+    
+    # Keybindings for history search with Up/Down arrows (filters history by typed prefix)
+    Set-PSReadLineKeyHandler -Key UpArrow -Function HistorySearchBackward
+    Set-PSReadLineKeyHandler -Key DownArrow -Function HistorySearchForward
+    
+    # Tab completion menu (Ctrl+Space or Tab)
+    Set-PSReadLineKeyHandler -Key Tab -Function MenuComplete
+    
+    # Color customizations to make it look premium and readable
+    Set-PSReadLineOption -Colors @{
+        InlinePrediction = '#888888' # Subtle gray for autocomplete suggestions
+        Comment          = '#6a737d'
+        Variable         = '#ff7b72'
+        String           = '#a5d6ff'
+        Number           = '#79c0ff'
+        Command          = '#7ee787'
+    }
+} else {
+    Write-Warning "PSReadLine module is not installed. Run 'Install-Module PSReadLine -Scope CurrentUser' to install it."
+}
+
+# Verify and load Terminal-Icons
+if (Get-Module -ListAvailable -Name Terminal-Icons) {
+    Import-Module -Name Terminal-Icons
+} else {
+    Write-Warning "Terminal-Icons module is not installed. Run 'Install-Module Terminal-Icons -Scope CurrentUser' to install it."
+}
