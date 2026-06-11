@@ -1,10 +1,7 @@
-# Bash-like aliases with argument forwarding
-if (-not (Get-Command cat -ErrorAction SilentlyContinue)) {
-    Set-Alias cat Get-Content
-}
-Set-Alias mv Move-Item
-Set-Alias rm Remove-Item
-Set-Alias ps Get-Process
+# Bash-like aliases with argument forwarding safely defined
+Set-Alias mv Move-Item -Force -Option AllScope
+Set-Alias rm Remove-Item -Force -Option AllScope
+Set-Alias ps Get-Process -Force -Option AllScope
 
 # A safe, fully compatible touch implementation
 function touch {

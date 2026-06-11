@@ -17,14 +17,11 @@ if (Get-Module -ListAvailable -Name PSReadLine) {
     Set-PSReadLineKeyHandler -Key Tab -Function MenuComplete
     
     # Color customizations to make it look premium and readable
-    Set-PSReadLineOption -Colors @{
-        InlinePrediction = '#888888' # Subtle gray for autocomplete suggestions
-        Comment          = '#6a737d'
-        Variable         = '#ff7b72'
-        String           = '#a5d6ff'
-        Number           = '#79c0ff'
-        Command          = '#7ee787'
-    }
+    try {
+        Set-PSReadLineOption -Colors @{
+            InlinePrediction = 'DarkGray' # Subtle gray for autocomplete suggestions (respects theme)
+        }
+    } catch {}
 } else {
     Write-Warning "PSReadLine module is not installed. Run 'Install-Module PSReadLine -Scope CurrentUser' to install it."
 }

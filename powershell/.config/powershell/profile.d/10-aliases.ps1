@@ -18,9 +18,9 @@ function .... { Set-Location ..\..\.. }
 
 # Modern CLI Tool Replacements & Fallbacks
 if (Get-Command bat -ErrorAction SilentlyContinue) {
-    Set-Alias cat bat
+    Set-Alias cat bat -Force -Option AllScope
 } else {
-    Set-Alias cat Get-Content
+    Set-Alias cat Get-Content -Force -Option AllScope
 }
 
 if (Get-Command eza -ErrorAction SilentlyContinue) {

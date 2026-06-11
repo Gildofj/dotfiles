@@ -22,11 +22,11 @@
         {
           "foreground": "#ff94df",
           "properties": {
-            "branch_icon": " <#ff94df><b>? </b></>",
+            "branch_icon": " <#ff94df><b>\uE0A0 </b></>",
             "fetch_stash_count": true
           },
           "style": "plain",
-          "template": "<#ffffff>on</>{{ .HEAD }}{{ if gt .StashCount 0 }} ? {{ .StashCount }}{{ end }} ",
+          "template": "<#ffffff>on</>{{ .HEAD }}{{ if gt .StashCount 0 }} \uEB4B {{ .StashCount }}{{ end }} ",
           "type": "git"
         },
         {
@@ -35,13 +35,13 @@
             "fetch_version": true
           },
           "style": "plain",
-          "template": "<#ffffff>via</> ? {{ .Full }} ",
+          "template": "<#ffffff>via</> \uE718 {{ .Full }} ",
           "type": "node"
         },
         {
           "foreground": "#FE4A49",
           "style": "plain",
-          "template": "<#ffffff>and</>  ? {{ .Full }} ",
+          "template": "<#ffffff>and</>  \uE71E {{ .Full }} ",
           "type": "npm",
           "when": {
             "files": [
@@ -52,7 +52,7 @@
         {
           "foreground": "#81a1c1",
           "style": "plain",
-          "template": "<#ffffff>and</> ? {{ .Full }} ",
+          "template": "<#ffffff>and</> \uE7BA {{ .Full }} ",
           "type": "react"
         }
       ],
@@ -65,7 +65,7 @@
         {
           "foreground": "lightGreen",
           "style": "plain",
-          "template": "?",
+          "template": "\u276F",
           "type": "text"
         }
       ],
