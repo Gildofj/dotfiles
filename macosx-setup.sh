@@ -204,6 +204,7 @@ BREW_PACKAGES=(
     fd        # Moving from cargo to brew
     git-delta # Moving from cargo to brew
     zoxide    # Moved from additional tools for unified management
+    tree-sitter-cli # Requerido para compilar parsers do nvim-treesitter (main) no Neovim 0.12+
 )
 
 # Install packages

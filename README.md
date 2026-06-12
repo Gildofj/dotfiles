@@ -53,6 +53,8 @@ Para implantar e criar links simbólicos (symlinks/hardlinks) das configuraçõe
 ### No macOS
 Para configurar o seu ambiente macOS de forma automatizada (instalando ferramentas do Homebrew e linkando arquivos):
 
+> 💡 **Nota Importante:** O setup do Neovim (ramificação `main` do `nvim-treesitter` para Neovim 0.12+) requer o pacote `tree-sitter-cli` para compilar os parsers localmente. O script `macosx-setup.sh` já inclui esse pacote e o instala de forma totalmente automatizada.
+
 1. Dê permissão de execução ao script:
    ```bash
    chmod +x macosx-setup.sh

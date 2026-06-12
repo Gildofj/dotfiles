@@ -1,41 +1,18 @@
 return {
   {
     "nvim-treesitter/nvim-treesitter",
-    -- Forçamos a master para estabilidade a longo prazo
-    branch = "master", 
+    lazy = false,
+    branch = "main",
     build = ":TSUpdate",
-    event = { "BufReadPost", "BufNewFile" },
-    dependencies = {
-      "nvim-treesitter/nvim-treesitter-textobjects",
-    },
-    opts = {
-      highlight = { enable = true },
-      indent = { enable = true },
-      ensure_installed = {
-        "bash", "c", "diff", "html", "javascript", "jsdoc", "json", "jsonc", "lua", "luadoc", "luap",
-        "markdown", "markdown_inline", "python", "query", "regex", "toml", "tsx", "typescript", "vim",
-        "vimdoc", "yaml", "rust", "astro", "css", "scss", "sql"
-      },
-      textobjects = {
-        select = {
-          enable = true,
-          lookahead = true,
-          keymaps = {
-            ["af"] = "@function.outer",
-            ["if"] = "@function.inner",
-          },
-        },
-      },
-    },
-    config = function(_, opts)
-      -- Lógica Cross-Platform para Compiladores
+    config = function()
+      local ts = require("nvim-treesitter")
+
       local install = require("nvim-treesitter.install")
-      install.prefer_git = true -- Força o uso do Git para evitar erros com 'tar' e downloads corrompidos
+      install.prefer_git = true
       if vim.fn.has("win32") == 1 then
         install.compilers = { "cl", "gcc", "clang" }
       elseif vim.fn.has("mac") == 1 then
         install.compilers = { "clang", "cc", "gcc" }
-        -- Fix crítico para Mac: Garante que o compilador ache o stdlib.h e headers do sistema
         local sdk_path = vim.fn.trim(vim.fn.system("xcrun --show-sdk-path"))
         if sdk_path ~= "" then
           vim.env.SDKROOT = sdk_path
@@ -44,20 +21,56 @@ return {
         install.compilers = { "gcc", "clang", "cc" }
       end
 
-      -- Tenta carregar o modo clássico (master/antigo)
-      local status, configs = pcall(require, "nvim-treesitter.configs")
-      if status then
-        configs.setup(opts)
+      ts.setup()
+
+      local parsers = {
+        "bash", "c", "diff", "html", "javascript", "jsdoc", "json", "jsonc", "lua", "luadoc", "luap",
+        "markdown", "markdown_inline", "python", "query", "regex", "toml", "tsx", "typescript", "vim",
+        "vimdoc", "yaml", "rust", "astro", "css", "scss", "sql"
+      }
+
+      if #vim.api.nvim_list_uis() == 0 then
+        pcall(function()
+          ts.install(parsers):wait(300000)
+        end)
       else
-        -- Fallback para o modo novo (main/experimental)
-        local ts_status, ts = pcall(require, "nvim-treesitter")
-        if ts_status and ts.setup then
-           ts.setup(opts)
-        end
+        vim.defer_fn(function()
+          if ts.install then
+            ts.install(parsers)
+          end
+        end, 0)
       end
 
-      -- Mapeamento preventivo para Neovim 0.10+
+      vim.api.nvim_create_autocmd("FileType", {
+        callback = function()
+          local ok = pcall(vim.treesitter.start)
+          if ok then
+            vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+          end
+        end,
+      })
+
       pcall(vim.treesitter.language.register, "tsx", "typescriptreact")
+    end,
+  },
+  {
+    "nvim-treesitter/nvim-treesitter-textobjects",
+    branch = "main",
+    dependencies = { "nvim-treesitter/nvim-treesitter" },
+    init = function()
+      vim.g.no_plugin_maps = true
+    end,
+    config = function()
+      require("nvim-treesitter-textobjects").setup({
+        select = {
+          enable = true,
+          lookahead = true,
+          keymaps = {
+            ["af"] = "@function.outer",
+            ["if"] = "@function.inner",
+          },
+        },
+      })
     end,
   },
   {
