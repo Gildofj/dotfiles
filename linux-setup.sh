@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/bin/bash
 
 # Configuration
 USER_HOME="$HOME"
@@ -11,7 +11,7 @@ log() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"
 }
 
-# Interactive confirmation helper (zsh-friendly)
+# Interactive confirmation helper
 ask_yes_no() {
     local prompt="$1"
     local default="$2" # 'Y' or 'N'
@@ -23,7 +23,7 @@ ask_yes_no() {
         echo -n "$prompt [y/N]: "
     fi
     
-    read response
+    read -r response
     response=$(echo "$response" | tr '[:upper:]' '[:lower:]')
     
     if [ -z "$response" ]; then
@@ -37,7 +37,7 @@ ask_yes_no() {
     return 1
 }
 
-# Read 1 character cross-shell (Bash and Zsh compatible)
+# Read 1 character cross-shell
 read_char() {
     if [ -n "$ZSH_VERSION" ]; then
         read -r -s -k 1 "$1"
@@ -72,13 +72,12 @@ prompt_multi_select() {
     local num_options=${#menu_options[@]}
     
     # Initialize selections to true (all selected by default)
-    # Zsh arrays are 1-based, so we loop from 1 to num_options
     local -a selected=()
-    for ((i=1; i<=num_options; i++)); do
+    for ((i=0; i<num_options; i++)); do
         selected[$i]=true
     done
     
-    local cursor=1
+    local cursor=0
     local ESC=$(printf '\033')
     
     # Turn off cursor blinking for smooth rendering
@@ -88,8 +87,8 @@ prompt_multi_select() {
     echo -e "Use [\033[34m↑/↓\033[0m] para navegar, [\033[32mEspaço\033[0m] para selecionar/desmarcar, [\033[32mEnter\033[0m] para confirmar.\n"
     
     # Render the initial list
-    for ((i=1; i<=num_options; i++)); do
-        print_option $i "${menu_options[$i]}" "${selected[$i]}" "$([ $i -eq $cursor ] && echo 'true' || echo 'false')"
+    for ((i=0; i<num_options; i++)); do
+        print_option $((i+1)) "${menu_options[$i]}" "${selected[$i]}" "$([ $i -eq $cursor ] && echo 'true' || echo 'false')"
     done
     
     while true; do
@@ -105,10 +104,10 @@ prompt_multi_select() {
             key="${next_keys}${next_keys_2}"
             if [ "$key" = "[A" ]; then # Up Arrow
                 ((cursor--))
-                [ $cursor -lt 1 ] && cursor=$num_options
+                [ $cursor -lt 0 ] && cursor=$((num_options - 1))
             elif [ "$key" = "[B" ]; then # Down Arrow
                 ((cursor++))
-                [ $cursor -gt $num_options ] && cursor=1
+                [ $cursor -ge $num_options ] && cursor=0
             fi
         elif [ "$key" = "" ] || [ "$key" = $'\r' ] || [ "$key" = $'\n' ]; then # Enter key
             break
@@ -124,9 +123,9 @@ prompt_multi_select() {
         printf "${ESC}[${num_options}A"
         
         # Redraw option list
-        for ((i=1; i<=num_options; i++)); do
+        for ((i=0; i<num_options; i++)); do
             printf "${ESC}[K" # Clear line to prevent rendering artifacts
-            print_option $i "${menu_options[$i]}" "${selected[$i]}" "$([ $i -eq $cursor ] && echo 'true' || echo 'false')"
+            print_option $((i+1)) "${menu_options[$i]}" "${selected[$i]}" "$([ $i -eq $cursor ] && echo 'true' || echo 'false')"
         done
     done
     
@@ -134,10 +133,9 @@ prompt_multi_select() {
     printf "${ESC}[?25h"
     echo ""
     
-    # Export selected values as a global array in Zsh
-    typeset -g -a SELECTED_ITEMS
+    # Export selected values
     SELECTED_ITEMS=()
-    for ((i=1; i<=num_options; i++)); do
+    for ((i=0; i<num_options; i++)); do
         if [ "${selected[$i]}" = "true" ]; then
             SELECTED_ITEMS+=("${menu_options[$i]}")
         fi
@@ -148,100 +146,88 @@ prompt_multi_select() {
 set -e
 trap 'log "Error occurred at line $LINENO"' ERR
 
-# Check if running on macOS
-if [[ "$(uname)" != "Darwin" ]]; then
-    log "This script is meant for macOS only"
+# Check if running on Linux
+if [[ "$(uname)" != "Linux" ]]; then
+    log "This script is meant for Linux only"
     exit 1
 fi
 
-# Xcode Command Line Tools
-log "Checking Xcode Command Line Tools..."
-if ! xcode-select -p &>/dev/null; then
-    log "Installing Xcode Command Line Tools..."
-    xcode-select --install
-    # Wait for installation to complete
-    until xcode-select -p &>/dev/null; do
-        sleep 5
-    done
+# Detect package manager
+PACKAGE_MANAGER=""
+if command -v apt-get &>/dev/null; then
+    PACKAGE_MANAGER="apt"
+elif command -v dnf &>/dev/null; then
+    PACKAGE_MANAGER="dnf"
+elif command -v pacman &>/dev/null; then
+    PACKAGE_MANAGER="pacman"
 fi
 
-# Global dependency flags
-HAS_BREW=true
-HAS_STOW=true
-HAS_NVM=true
-
-# Package managers
-install_homebrew() {
-    if ! command -v brew &>/dev/null; then
-        if ask_yes_no "Homebrew não foi encontrado. Deseja instalar o Homebrew? (Requerido para instalar as dependências de sistema)" "Y"; then
-            log "Installing Homebrew..."
-            /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-            # Add Homebrew to PATH
-            eval "$(/opt/homebrew/bin/brew shellenv)"
-            HAS_BREW=true
-        else
-            log "[Aviso] Instalação do Homebrew recusada pelo usuário. Os pacotes dependentes não poderão ser instalados automaticamente."
-            HAS_BREW=false
-            HAS_STOW=false
-            HAS_NVM=false
-        fi
-    else
-        HAS_BREW=true
-    fi
-}
-
-# Core packages
-BREW_PACKAGES=(
+# Core packages lists depending on package manager
+APT_PACKAGES=(
     stow
-    nvim
+    neovim
     tmux
-    nvm
+    curl
+    git
     fzf
-    thefuck
-    ripgrep   # Moving from cargo to brew for better management
-    bat       # Moving from cargo to brew
-    eza       # Replacing exa with modern/active fork eza
-    fd        # Moving from cargo to brew
-    git-delta # Moving from cargo to brew
-    zoxide    # Moved from additional tools for unified management
-    tree-sitter-cli # Requerido para compilar parsers do nvim-treesitter (main) no Neovim 0.12+
+    ripgrep
+    bat
+    eza
+    fd-find
+    zoxide
 )
 
-# Install packages
-install_packages() {
-    if [ "$HAS_BREW" = "false" ]; then
-        log "[Aviso] Homebrew não está disponível. Pulando instalação em lote de pacotes."
-        HAS_STOW=false
-        HAS_NVM=false
+install_linux_packages() {
+    if [ -z "$PACKAGE_MANAGER" ]; then
+        log "[Aviso] Nenhum gerenciador de pacotes suportado (apt, dnf, pacman) encontrado. Instalação de pacotes pulada."
         return
     fi
 
-    # Prompt user for Homebrew package selections using spacebar/arrows
-    prompt_multi_select "Selecione quais pacotes do Homebrew você deseja instalar/sincronizar:" "${BREW_PACKAGES[@]}"
-    local packages_to_install=("${SELECTED_ITEMS[@]}")
-    
-    # Check if stow was selected or already installed
-    if [[ ! " ${packages_to_install[*]} " =~ " stow " ]] && ! command -v stow &>/dev/null; then
-        log "[Aviso] 'stow' não foi selecionado e não está instalado. As ferramentas que necessitam do Stow (como deploy de dotfiles) serão ignoradas."
-        HAS_STOW=false
-    else
-        HAS_STOW=true
-    fi
+    log "Detectado gerenciador de pacotes: $PACKAGE_MANAGER"
 
-    # Check if nvm was selected or already installed
-    if [[ ! " ${packages_to_install[*]} " =~ " nvm " ]] && [ ! -d "$HOME/.nvm" ]; then
-        log "[Aviso] 'nvm' não foi selecionado e não está instalado. A instalação do Node.js via NVM será ignorada."
-        HAS_NVM=false
-    else
-        HAS_NVM=true
-    fi
-
-    if [ ${#packages_to_install[@]} -gt 0 ]; then
-        log "Installing Homebrew packages in batch: ${packages_to_install[*]}..."
-        # Batch installation drastically improves performance compared to loop installs
-        brew install "${packages_to_install[@]}" || log "Some Homebrew packages failed to install, but proceeding..."
-    else
-        log "No Homebrew packages selected for installation."
+    if [ "$PACKAGE_MANAGER" = "apt" ]; then
+        prompt_multi_select "Selecione quais pacotes do sistema você deseja instalar/sincronizar via APT:" "${APT_PACKAGES[@]}"
+        local packages_to_install=("${SELECTED_ITEMS[@]}")
+        
+        if [ ${#packages_to_install[@]} -gt 0 ]; then
+            log "Atualizando listas de pacotes (sudo apt-get update)..."
+            sudo apt-get update
+            
+            # Ajuste específico para eza e bat no Debian/Ubuntu antigos se necessário
+            # Caso contrário, tenta instalar em lote
+            log "Instalando pacotes selecionados: ${packages_to_install[*]}..."
+            sudo apt-get install -y "${packages_to_install[@]}" || log "Alguns pacotes falharam, mas prosseguindo..."
+            
+            # Cria atalho conveniente para fd se instalado como fd-find
+            if command -v fdfind &>/dev/null && ! command -v fd &>/dev/null; then
+                mkdir -p "$HOME/.local/bin"
+                ln -sf "$(command -v fdfind)" "$HOME/.local/bin/fd"
+            fi
+            
+            # Cria atalho conveniente para bat se instalado como batcat
+            if command -v batcat &>/dev/null && ! command -v bat &>/dev/null; then
+                mkdir -p "$HOME/.local/bin"
+                ln -sf "$(command -v batcat)" "$HOME/.local/bin/bat"
+            fi
+        fi
+    elif [ "$PACKAGE_MANAGER" = "dnf" ]; then
+        # Tradução simples para dnf
+        local dnf_packages=(stow neovim tmux curl git fzf ripgrep bat eza fd-find zoxide)
+        prompt_multi_select "Selecione os pacotes para instalar via DNF:" "${dnf_packages[@]}"
+        local packages_to_install=("${SELECTED_ITEMS[@]}")
+        if [ ${#packages_to_install[@]} -gt 0 ]; then
+            log "Instalando pacotes via DNF: ${packages_to_install[*]}..."
+            sudo dnf install -y "${packages_to_install[@]}"
+        fi
+    elif [ "$PACKAGE_MANAGER" = "pacman" ]; then
+        # Tradução simples para pacman
+        local pac_packages=(stow neovim tmux curl git fzf ripgrep bat eza fd zoxide)
+        prompt_multi_select "Selecione os pacotes para instalar via Pacman:" "${pac_packages[@]}"
+        local packages_to_install=("${SELECTED_ITEMS[@]}")
+        if [ ${#packages_to_install[@]} -gt 0 ]; then
+            log "Instalando pacotes via Pacman: ${packages_to_install[*]}..."
+            sudo pacman -Syu --noconfirm "${packages_to_install[@]}"
+        fi
     fi
 }
 
@@ -252,11 +238,11 @@ ZSH_PLUGINS=(
     "zsh-users/zsh-autosuggestions"
     "spaceship-prompt/spaceship-prompt"
     "larkery/zsh-histdb"
-    "TamCore/autoupdate-oh-my-zsh-plugins"  # Added autoupdate plugin
+    "TamCore/autoupdate-oh-my-zsh-plugins"
 )
 
 install_zsh_plugins() {
-    log "Installing ZSH plugins in parallel..."
+    log "Instalando plugins ZSH em paralelo..."
     for plugin in "${ZSH_PLUGINS[@]}"; do
         local plugin_name=$(basename "$plugin")
         local clone_target="$ZSH_CUSTOM/plugins/$plugin_name"
@@ -268,14 +254,14 @@ install_zsh_plugins() {
         fi
 
         if [ ! -d "$clone_target" ]; then
-            (git clone "https://github.com/$plugin" "$clone_target" || log "Failed to clone $plugin") &
+            (git clone "https://github.com/$plugin" "$clone_target" || log "Falhou ao clonar $plugin") &
         fi
     done
 
-    # Wait for all background clones to complete in parallel
+    # Aguarda todos os clones em background terminarem
     wait
 
-    # Create symlink for spaceship-prompt if it was installed
+    # Cria link simbólico para spaceship-prompt se instalado
     if [ -d "$ZSH_CUSTOM/themes/spaceship-prompt" ]; then
         ln -sf "$ZSH_CUSTOM/themes/spaceship-prompt/spaceship.zsh-theme" "$ZSH_CUSTOM/themes/spaceship.zsh-theme"
     fi
@@ -285,37 +271,32 @@ install_zsh_plugins() {
 install_dev_tools() {
     # Oh My Zsh
     if [ ! -d "$USER_HOME/.oh-my-zsh" ]; then
-        log "Installing Oh My Zsh..."
+        log "Instalando Oh My Zsh..."
         zsh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
     fi
 
     # Rust
     if ! command -v rustc &>/dev/null; then
-        log "Installing Rust..."
+        log "Instalando Rust..."
         curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+        # shellcheck disable=SC1090
         source "$USER_HOME/.cargo/env"
     fi
 
     # Install Node.js via nvm
-    if [ "$HAS_NVM" = "true" ] && [ ! -d "$HOME/.nvm" ]; then
-        log "Installing nvm and Node.js..."
-        mkdir -p "$HOME/.nvm"
+    if [ ! -d "$HOME/.nvm" ]; then
+        log "Instalando NVM..."
+        curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
         export NVM_DIR="$HOME/.nvm"
-        
-        # Check if brew has nvm prefix to source safely
-        if command -v brew &>/dev/null && brew --prefix nvm &>/dev/null; then
-            source $(brew --prefix nvm)/nvm.sh
-            nvm install --lts
-            nvm use --lts
-        else
-            log "[Aviso] Não foi possível carregar o nvm via brew prefix. Instalação do Node.js pulada."
-        fi
-    elif [ "$HAS_NVM" = "false" ]; then
-        log "[Aviso] NVM não está disponível ou foi recusado. Pulando instalação do Node.js via NVM."
+        # shellcheck disable=SC1090
+        [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+        log "Instalando Node.js LTS..."
+        nvm install --lts
+        nvm use --lts
     fi
 }
 
-# Stow packages list matching the workspace structure
+# Stow packages list
 STOW_PACKAGES=(
     editor-core
     alacritty
@@ -329,7 +310,6 @@ STOW_PACKAGES=(
 
 # Dotfiles setup
 setup_dotfiles() {
-    # Prompt user for package selections using spacebar/arrows
     prompt_multi_select "Selecione quais pacotes você deseja configurar via Stow:" "${STOW_PACKAGES[@]}"
     
     if [ ${#SELECTED_ITEMS[@]} -eq 0 ]; then
@@ -351,15 +331,14 @@ setup_dotfiles() {
 
     if [ "$has_editor" = "true" ] && [ "$has_core" = "false" ]; then
         log "[Dependência] Vim/Neovim selecionados. Adicionando 'editor-core' automaticamente..."
-        # Add editor-core to SELECTED_ITEMS
         SELECTED_ITEMS+=("editor-core")
     fi
     
-    log "Setting up dotfiles for selected packages: ${SELECTED_ITEMS[*]}..."
+    log "Configurando dotfiles via Stow para os pacotes: ${SELECTED_ITEMS[*]}..."
     cd "$DOTFILES_PATH" || exit 1
 
-    # Mapeamento dinâmico de arquivos e diretórios conflitantes por pacote
-    typeset -A package_files
+    # Mapeamento dinâmico de arquivos e diretórios conflitantes
+    declare -A package_files
     package_files[editor-core]="$HOME/.editor_shared.vim $HOME/.exrc"
     package_files[wezterm]="$HOME/.wezterm.lua"
     package_files[tmux]="$HOME/.tmux.conf"
@@ -367,28 +346,26 @@ setup_dotfiles() {
     package_files[vim]="$HOME/.vimrc $HOME/.ideavimrc"
     package_files[gemini]="$HOME/.gemini/settings.json"
 
-    typeset -A package_dirs
+    declare -A package_dirs
     package_dirs[nvim]="$HOME/.config/nvim"
     package_dirs[alacritty]="$HOME/.config/alacritty"
     package_dirs[gemini]="$HOME/.gemini/agents"
 
-    # Remove existing real configs/symlinks of SELECTED packages only before stowing
+    # Remove arquivos conflitantes reais antes do stow
     for config in "${SELECTED_ITEMS[@]}"; do
-        # Clean conflicting files
         if [ -n "${package_files[$config]}" ]; then
             for target in ${package_files[$config]}; do
                 if [ -e "$target" ] && [ ! -L "$target" ]; then
-                    log "Removing existing real file $target for package $config..."
+                    log "Removendo arquivo existente real $target do pacote $config..."
                     rm -rf "$target"
                 fi
             done
         fi
 
-        # Clean conflicting directories
         if [ -n "${package_dirs[$config]}" ]; then
             local target_dir="${package_dirs[$config]}"
             if [ -d "$target_dir" ] && [ ! -L "$target_dir" ]; then
-                log "Removing existing real directory $target_dir for package $config..."
+                log "Removendo diretório existente real $target_dir do pacote $config..."
                 rm -rf "$target_dir"
             fi
         fi
@@ -396,8 +373,8 @@ setup_dotfiles() {
 
     # Stow selected configs
     for config in "${SELECTED_ITEMS[@]}"; do
-        log "Stowing ${config}..."
-        stow -v --restow "$config" || log "Failed to stow $config"
+        log "Executando Stow em ${config}..."
+        stow -v --restow "$config" || log "Falhou ao executar stow em $config"
     done
 
     cd "$USER_HOME" || exit 1
@@ -405,21 +382,20 @@ setup_dotfiles() {
 
 # Main installation flow
 main() {
-    log "Starting setup..."
-    install_homebrew
-    install_packages
+    log "Iniciando setup no Linux..."
+    install_linux_packages
     install_dev_tools
     install_zsh_plugins
     
     echo -e "\n=== Deploy dos Dotfiles ==="
-    if [ "$HAS_STOW" = "true" ] || command -v stow &>/dev/null; then
+    if command -v stow &>/dev/null; then
         if ask_yes_no "Deseja executar o Stow para configurar seus dotfiles (vincular nvim, tmux, gemini, etc.)?" "Y"; then
             setup_dotfiles
         else
             log "Pulando a etapa de configuração de dotfiles via Stow."
         fi
     else
-        log "[Aviso] 'stow' não está disponível ou foi recusado. A etapa de configuração dos dotfiles via Stow foi ignorada."
+        log "[Aviso] 'stow' não está disponível. Pulando configuração via Stow."
     fi
 
     # Create secrets file if it doesn't exist
@@ -427,16 +403,14 @@ main() {
         touch "$HOME/.secrets.zsh"
     fi
 
-    log "Setup completed successfully!"
+    log "Setup do Linux concluído com sucesso!"
 
-    # Print final instructions
     cat << EOF
 ==============================================
-Setup completed! Please do the following:
-1. Restart your terminal
-2. Run 'source ~/.zshrc'
-3. Run 'brew cleanup'
-4. Add any sensitive environment variables to ~/.secrets.zsh
+Setup concluído! Por favor faça o seguinte:
+1. Reinicie seu terminal
+2. Rode 'source ~/.zshrc'
+3. Adicione suas variáveis de ambiente sensíveis em ~/.secrets.zsh
 ==============================================
 EOF
 }

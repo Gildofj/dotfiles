@@ -156,9 +156,18 @@ if ($DryRun) {
 
 # Get packages to process
 if ($Package) {
-    $packages = $Package
+    $packages = [System.Collections.Generic.List[string]]($Package)
 } else {
-    $packages = Get-ChildItem $dotfilesDir -Directory | Select-Object -ExpandProperty Name
+    $packages = [System.Collections.Generic.List[string]](Get-ChildItem $dotfilesDir -Directory | Select-Object -ExpandProperty Name)
+}
+
+# Enforce editor-core dependency if nvim or vim is present
+if ($packages -contains "nvim" -or $packages -contains "vim") {
+    if (-not ($packages -contains "editor-core")) {
+        Write-ColorOutput "`n[Dependency] nvim or vim selected. Automatically stowing 'editor-core' first..." "Cyan"
+        # Insert editor-core at the beginning of the list so it is stowed before the editors
+        $packages.Insert(0, "editor-core")
+    }
 }
 
 # Process each package

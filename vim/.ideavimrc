@@ -3,41 +3,23 @@
 " Establishes high parity with custom Neovim keymaps, options, and actions.
 " ============================================================================
 
-" --- IdeaVim Plugin Emulations (Matches Neovim Plugins) ---
+" --- 1. LOAD SHARED CONFIGURATION ---
+" Loads universal options and keymaps shared across standard Vim and Neovim.
+let s:shared_config = expand('~/.editor_shared.vim')
+if filereadable(s:shared_config)
+  execute 'source ' . s:shared_config
+endif
+
+" --- 2. IDEAVIM PLUGIN EMULATIONS (Matches Neovim Plugins) ---
 set surround                 " Matches 'kylechui/nvim-surround' (surround maps like ys, ds, cs)
 set multiple-cursors         " Matches 'mg979/vim-visual-multi' (Ctrl-N for multicursors)
 set commentary               " Matches 'numToStr/Comment.nvim' (gc to comment lines)
 set ideajoin                 " Smart line-joining utilizing JetBrains formatter
 set keep-english-in-handler  " Prevent input source switches in normal mode
 
-" --- General Options Parity (Matches Neovim options.lua) ---
-set number                   " Show absolute line number
-set relativenumber           " Show relative line numbers (hybrid)
-set cursorline               " Highlight current editor line
-set incsearch                " Incremental search
-set hlsearch                 " Highlight search matches
-set ignorecase               " Ignore case when searching
-set smartcase                " Case-sensitive if capitals are typed
-set scrolloff=4              " Keep 4 lines above/below cursor
-set sidescrolloff=8          " Keep 8 columns left/right of cursor
-set clipboard+=unnamedplus   " Share clipboard seamlessly with OS
+" --- 3. JETBRAINS ACTION MAPS (Parity with Telescope & LSP keymaps) ---
 
-" --- Core Keymap Parity (Matches Neovim keymaps.lua) ---
-let mapleader = " "
-let maplocalleader = "\\"
-
-" Delete a word backwards (matches 'dw' -> 'vb_d' keymap)
-nnoremap dw vb_d
-
-" Select all (matches '<C-a>' -> 'gg<S-v>G' keymap)
-nnoremap <C-a> ggVG
-
-" Text refactor helper
-nnoremap <C-f> :%s/
-
-" --- JetBrains Action Maps (Parity with Telescope & LSP keymaps) ---
-
-" Splits & Window Management
+" Splits & Window Management (Action mappings)
 nnoremap sv :action SplitVertically<CR>
 nnoremap ss :action SplitHorizontally<CR>
 nnoremap sc :action CloseEditor<CR>
@@ -70,6 +52,6 @@ vnoremap <leader>mp :action ReformatCode<CR>
 nnoremap <C-b> :action ActivateProjectToolWindow<CR>
 nnoremap <C-S-b> :action HideActiveWindow<CR>
 
-" --- Comfort Utilities ---
+" --- 4. COMFORT UTILITIES ---
 " Exit insert mode with standard vim/ideavim setup
 inoremap jj <Esc>
