@@ -1,0 +1,75 @@
+" ============================================================================
+" Gildo FJ's JetBrains IdeaVim Configuration (.ideavimrc)
+" Establishes high parity with custom Neovim keymaps, options, and actions.
+" ============================================================================
+
+" --- IdeaVim Plugin Emulations (Matches Neovim Plugins) ---
+set surround                 " Matches 'kylechui/nvim-surround' (surround maps like ys, ds, cs)
+set multiple-cursors         " Matches 'mg979/vim-visual-multi' (Ctrl-N for multicursors)
+set commentary               " Matches 'numToStr/Comment.nvim' (gc to comment lines)
+set ideajoin                 " Smart line-joining utilizing JetBrains formatter
+set keep-english-in-handler  " Prevent input source switches in normal mode
+
+" --- General Options Parity (Matches Neovim options.lua) ---
+set number                   " Show absolute line number
+set relativenumber           " Show relative line numbers (hybrid)
+set cursorline               " Highlight current editor line
+set incsearch                " Incremental search
+set hlsearch                 " Highlight search matches
+set ignorecase               " Ignore case when searching
+set smartcase                " Case-sensitive if capitals are typed
+set scrolloff=4              " Keep 4 lines above/below cursor
+set sidescrolloff=8          " Keep 8 columns left/right of cursor
+set clipboard+=unnamedplus   " Share clipboard seamlessly with OS
+
+" --- Core Keymap Parity (Matches Neovim keymaps.lua) ---
+let mapleader = " "
+let maplocalleader = "\\"
+
+" Delete a word backwards (matches 'dw' -> 'vb_d' keymap)
+nnoremap dw vb_d
+
+" Select all (matches '<C-a>' -> 'gg<S-v>G' keymap)
+nnoremap <C-a> ggVG
+
+" Text refactor helper
+nnoremap <C-f> :%s/
+
+" --- JetBrains Action Maps (Parity with Telescope & LSP keymaps) ---
+
+" Splits & Window Management
+nnoremap sv :action SplitVertically<CR>
+nnoremap ss :action SplitHorizontally<CR>
+nnoremap sc :action CloseEditor<CR>
+
+" File & Search Navigation (Matches Telescope)
+nnoremap <C-p> :action GotoFile<CR>
+nnoremap <leader>fs :action FindInPath<CR>
+nnoremap <leader>fr :action RecentFiles<CR>
+
+" LSP & Code Intelligence Navigation
+nnoremap gd :action GotoDeclaration<CR>
+nnoremap gD :action GotoTypeDeclaration<CR>
+nnoremap gi :action GotoImplementation<CR>
+nnoremap gR :action FindUsages<CR>
+nnoremap K :action QuickJavaDoc<CR>
+nnoremap [d :action GotoPreviousError<CR>
+nnoremap ]d :action GotoNextError<CR>
+
+" Code Actions & Refactoring
+nnoremap <leader>a :action ShowIntentionActions<CR>
+vnoremap <leader>a :action ShowIntentionActions<CR>
+nnoremap <leader>r :action RenameElement<CR>
+vnoremap <leader>r :action RenameElement<CR>
+
+" Format Document (Matches conform.nvim keymap <leader>mp)
+nnoremap <leader>mp :action ReformatCode<CR>
+vnoremap <leader>mp :action ReformatCode<CR>
+
+" Toggle file explorer (Matches Neotree maps <C-b> and <C-S-b>)
+nnoremap <C-b> :action ActivateProjectToolWindow<CR>
+nnoremap <C-S-b> :action HideActiveWindow<CR>
+
+" --- Comfort Utilities ---
+" Exit insert mode with standard vim/ideavim setup
+inoremap jj <Esc>

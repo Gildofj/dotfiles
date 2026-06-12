@@ -8,6 +8,18 @@ alias reload="source ~/.zshrc"
 alias h="history"
 alias grep="grep --color=auto"
 
+# --- Editors (Dynamic Fallback) ---
+if command -v nvim &> /dev/null; then
+  alias v="nvim"
+  alias vim="nvim"
+  alias vi="nvim"
+elif command -v vim &> /dev/null; then
+  alias v="vim"
+  alias vi="vim"
+else
+  alias v="vi"
+fi
+
 # Modern replacements
 command -v eza &> /dev/null && alias ls="eza --icons" || \
 command -v exa &> /dev/null && alias ls="exa --icons" || \

@@ -1,5 +1,7 @@
 #!/bin/zsh
 
+# Adopted: boy-scout (Specialist in code modernization and setup scripts)
+
 # Configuration
 USER_HOME="$HOME"
 DOTFILES_PATH="$USER_HOME/dotfiles"
@@ -50,19 +52,19 @@ BREW_PACKAGES=(
     nvm
     fzf
     thefuck
-    ripgrep  # Moving from cargo to brew for better management
-    bat      # Moving from cargo to brew
-    exa      # Moving from cargo to brew
-    fd       # Moving from cargo to brew
+    ripgrep   # Moving from cargo to brew for better management
+    bat       # Moving from cargo to brew
+    eza       # Replacing exa with modern/active fork eza
+    fd        # Moving from cargo to brew
     git-delta # Moving from cargo to brew
+    zoxide    # Moved from additional tools for unified management
 )
 
 # Install packages
 install_packages() {
-    log "Installing Homebrew packages..."
-    for package in "${BREW_PACKAGES[@]}"; do
-        brew install "$package" || log "Failed to install $package"
-    done
+    log "Installing Homebrew packages in batch..."
+    # Batch installation drastically improves performance compared to loop installs
+    brew install "${BREW_PACKAGES[@]}" || log "Some Homebrew packages failed to install, but proceeding..."
 }
 
 # ZSH plugins and themes
@@ -76,36 +78,28 @@ ZSH_PLUGINS=(
 )
 
 install_zsh_plugins() {
-    log "Installing ZSH plugins..."
+    log "Installing ZSH plugins in parallel..."
     for plugin in "${ZSH_PLUGINS[@]}"; do
         local plugin_name=$(basename "$plugin")
-        local plugin_path="$ZSH_CUSTOM/plugins/$plugin_name"
+        local clone_target="$ZSH_CUSTOM/plugins/$plugin_name"
 
-        if [ ! -d "$plugin_path" ]; then
-            if [ "$plugin_name" = "spaceship-prompt" ]; then
-                git clone "https://github.com/$plugin" "$ZSH_CUSTOM/themes/$plugin_name" || log "Failed to clone $plugin"
-                ln -sf "$ZSH_CUSTOM/themes/$plugin_name/spaceship.zsh-theme" "$ZSH_CUSTOM/themes/spaceship.zsh-theme"
-            elif [ "$plugin_name" = "autoupdate-oh-my-zsh-plugins" ]; then
-                git clone "https://github.com/$plugin" "$ZSH_CUSTOM/plugins/autoupdate" || log "Failed to clone $plugin"
-            else
-                git clone "https://github.com/$plugin" "$plugin_path" || log "Failed to clone $plugin"
-            fi
+        if [ "$plugin_name" = "spaceship-prompt" ]; then
+            clone_target="$ZSH_CUSTOM/themes/$plugin_name"
+        elif [ "$plugin_name" = "autoupdate-oh-my-zsh-plugins" ]; then
+            clone_target="$ZSH_CUSTOM/plugins/autoupdate"
+        fi
+
+        if [ ! -d "$clone_target" ]; then
+            (git clone "https://github.com/$plugin" "$clone_target" || log "Failed to clone $plugin") &
         fi
     done
-}
 
-# Additional tools
-install_additional_tools() {
-    log "Installing additional tools..."
+    # Wait for all background clones to complete in parallel
+    wait
 
-    # Install zoxide
-    if ! command -v zoxide &>/dev/null; then
-        brew install zoxide
-    fi
-
-    # Install fd-find
-    if ! command -v fd &>/dev/null; then
-        brew install fd
+    # Create symlink for spaceship-prompt if it was installed
+    if [ -d "$ZSH_CUSTOM/themes/spaceship-prompt" ]; then
+        ln -sf "$ZSH_CUSTOM/themes/spaceship-prompt/spaceship.zsh-theme" "$ZSH_CUSTOM/themes/spaceship.zsh-theme"
     fi
 }
 
@@ -128,7 +122,6 @@ install_dev_tools() {
     if [ ! -d "$HOME/.nvm" ]; then
         log "Installing nvm and Node.js..."
         mkdir -p "$HOME/.nvm"
-        brew install nvm
         export NVM_DIR="$HOME/.nvm"
         source $(brew --prefix nvm)/nvm.sh
         nvm install --lts
@@ -136,21 +129,51 @@ install_dev_tools() {
     fi
 }
 
+# Stow packages list matching the workspace structure
+STOW_PACKAGES=(
+    alacritty
+    nvim
+    tmux
+    vim
+    wezterm
+    zshrc
+)
+
 # Dotfiles setup
 setup_dotfiles() {
     log "Setting up dotfiles..."
     cd "$DOTFILES_PATH" || exit 1
 
-    # Remove existing configs before stowing
-    for config in nvim tmux zshrc; do
-        if [ -e "$HOME/.${config}" ] || [ -e "$HOME/.${config}rc" ]; then
-            log "Removing existing ${config} configuration..."
-            rm -f "$HOME/.${config}" "$HOME/.${config}rc"
+    # Remove existing real configs/symlinks before stowing to prevent conflicts
+    local targets=(
+        "$HOME/.wezterm.lua"
+        "$HOME/.tmux.conf"
+        "$HOME/.zshrc"
+        "$HOME/.vimrc"
+        "$HOME/.ideavimrc"
+    )
+    for target in "${targets[@]}"; do
+        if [ -e "$target" ] && [ ! -L "$target" ]; then
+            log "Removing existing real file $target..."
+            rm -rf "$target"
+        fi
+    done
+
+    local target_dirs=(
+        "$HOME/.config/nvim"
+        "$HOME/.config/envman"
+        "$HOME/.config/alacritty"
+        "$HOME/.zsh"
+    )
+    for target_dir in "${target_dirs[@]}"; do
+        if [ -d "$target_dir" ] && [ ! -L "$target_dir" ]; then
+            log "Removing existing real directory $target_dir..."
+            rm -rf "$target_dir"
         fi
     done
 
     # Stow new configs
-    for config in nvim tmux zshrc; do
+    for config in "${STOW_PACKAGES[@]}"; do
         log "Stowing ${config}..."
         stow -v --restow "$config" || log "Failed to stow $config"
     done
@@ -165,7 +188,6 @@ main() {
     install_packages
     install_dev_tools
     install_zsh_plugins
-    install_additional_tools
     setup_dotfiles
 
     # Create secrets file if it doesn't exist

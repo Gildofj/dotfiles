@@ -6,6 +6,12 @@ if (Get-Command fastfetch -ErrorAction SilentlyContinue) {
 if (Get-Command nvim -ErrorAction SilentlyContinue) {
     Set-Alias v nvim -Force
     Set-Alias vim nvim -Force
+    Set-Alias vi nvim -Force
+} elseif (Get-Command vim -ErrorAction SilentlyContinue) {
+    Set-Alias v vim -Force
+    Set-Alias vi vim -Force
+} else {
+    Set-Alias v vi -Force
 }
 if (Get-Command git -ErrorAction SilentlyContinue) {
     Set-Alias g git -Force
