@@ -10,10 +10,19 @@ return {
       enabled = not Utils.is_win(),
     }, -- Optional image support in preview window: See `# Preview Mode` for more information
   },
+  keys = {
+    { "<C-b>", ":Neotree filesystem reveal left<CR>", desc = "Toggle Neo-tree reveal", silent = true },
+    { "<C-S-b>", ":Neotree filesystem action=close<CR>", desc = "Close Neo-tree", silent = true },
+    { "<C-g>", ":Neotree float git_status reveal<CR>", desc = "Neo-tree git status", silent = true },
+  },
   disactivate = function()
     vim.cmd([[Neotree close]])
   end,
   init = function()
+    -- Disable netrw (file explorer) to prevent conflicts with Neo-tree
+    vim.g.loaded_netrw = 1
+    vim.g.loaded_netrwPlugin = 1
+
     -- FIX: use `autocmd` for lazy-loading neo-tree instead of directly requiring it,
     -- because `cwd` is not set up properly.
     vim.api.nvim_create_autocmd("BufEnter", {
@@ -34,13 +43,6 @@ return {
   end,
   opts = function()
     local command = require("neo-tree.command")
-    vim.keymap.set("n", "<C-b>", ":Neotree filesystem reveal left<CR>")
-    vim.keymap.set("n", "<C-S-b>", ":Neotree filesystem action=close<CR>")
-    vim.keymap.set("n", "<C-g>", ":Neotree float git_status reveal<CR>")
-
-    -- Disable netrw (file explorer) to prevent conflicts with Neo-tree
-    vim.g.loaded_netrw = 1
-    vim.g.loaded_netrwPlugin = 1
 
     return {
       sources = { "filesystem", "buffers", "git_status" },

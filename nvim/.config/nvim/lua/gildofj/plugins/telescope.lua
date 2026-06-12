@@ -58,9 +58,10 @@ return {
       vim.keymap.set("n", "<leader>fs", builtin.live_grep, opts)
       opts.desc = "Find string under cursor"
       vim.keymap.set("n", "<leader>fc", builtin.grep_string, opts)
-      opts.desc = "Switch Colorscheme with preview"
+      opts.desc = "Theme and system sync configuration"
       vim.keymap.set("n", "<leader>th", function()
-        builtin.colorscheme({ enable_preview = true })
+        local theme = require("gildofj.core.theme")
+        theme.open_menu()
       end, opts)
     end,
   },

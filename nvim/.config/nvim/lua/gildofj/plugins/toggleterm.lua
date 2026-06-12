@@ -47,17 +47,12 @@ return {
     local Terminal = terminal.Terminal
     local term_right = Terminal:new({ direction = "vertical" })
     local function openTermRight()
-      vim.cmd("stopinsert!")
-      vim.cmd("vsplit!")
-      vim.cmd("wincmd l!")
-      term_right:open()
-      vim.cmd("wincmd =!")
+      term_right:toggle()
     end
 
     vim.keymap.set({ "n", "x", "o" }, "<C-t>", smart_toggle, { desc = "ToggleTerm" })
 
     -- Terminal mode keybindings
-    -- TODO: Verificar porque esse comando não esta abrindo um terminal ao lado
     vim.keymap.set("t", "<esc>", [[<C-\><C-n>]], { desc = "Enable normal mode" })
     vim.keymap.set("t", "<C-n>", openTermRight, { desc = "New terminal on right" })
     vim.keymap.set("t", "<C-o>", close_current_terminal, { desc = "Close current terminal" })

@@ -18,8 +18,9 @@ return {
     { "]B", "<cmd>BufferLineMoveNext<cr>", desc = "Move buffer next" },
   },
   opts = function(opts)
-    if (vim.g.colors_name or ""):find("catpuccin") then
-      opts.highlights = require("catpuccin.groups.integrations.bufferline").get()
+    if (vim.g.colors_name or ""):find("catppuccin") then
+      local cp_bufferline = require("catppuccin.special.bufferline")
+      opts.highlights = cp_bufferline.get_theme()()
     end
 
     return {

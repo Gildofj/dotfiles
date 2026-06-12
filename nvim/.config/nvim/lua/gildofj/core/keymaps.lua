@@ -22,6 +22,6 @@ vim.keymap.set("n", "<C-f>", ":%s/")
 
 -- Toggle background
 vim.keymap.set("n", "<leader>ub", function()
-  vim.o.background = vim.o.background == "dark" and "light" or "dark"
-  Utils.info({ "Background set to " .. vim.o.background }, { title = "Appearance" })
+  local theme = require("gildofj.core.theme")
+  theme.toggle_background()
 end, { desc = "Toggle Background (Dark/Light)" })
