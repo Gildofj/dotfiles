@@ -28,7 +28,7 @@ if (-not $isAdmin) {
 function Ask-YesNo {
     param([string]$Prompt, [bool]$Default = $true)
     $suffix = if ($Default) { "[Y/n]" } else { "[y/N]" }
-    Write-Host "$Prompt $suffix: " -NoNewline -ForegroundColor Yellow
+    Write-Host "$Prompt ${suffix}: " -NoNewline -ForegroundColor Yellow
     $resp = Read-Host
     if ([string]::IsNullOrWhiteSpace($resp)) {
         return $Default
@@ -58,29 +58,37 @@ function Prompt-MultiSelect {
     [Console]::CursorVisible = $false
 
     Write-Host "`n$Title" -ForegroundColor Cyan
-    Write-Host "Use [↑/↓] para navegar, [Espaço] para marcar/desmarcar, [Enter] para confirmar.`n" -ForegroundColor DarkGray
+    Write-Host "Use [↑/↓] para navegar, [Espaço] para marcar/desmarcar, [Enter] para confirmar." -ForegroundColor DarkGray
 
-    # Save initial cursor position
-    $startRow = [Console]::CursorTop
+    # Pre-allocate blank lines to prevent scrolling issues when updating the menu
+    for ($i = 0; $i -lt $numOptions; $i++) {
+        Write-Host ""
+    }
+    $startRow = [Console]::CursorTop - $numOptions
+
+    # Calculate max option length to pad options consistently and avoid trailing artifacts
+    $maxWidth = 0
+    foreach ($opt in $Options) {
+        if ($opt.Length -gt $maxWidth) {
+            $maxWidth = $opt.Length
+        }
+    }
 
     function Render-Options {
         [Console]::SetCursorPosition(0, $startRow)
         for ($i = 0; $i -lt $numOptions; $i++) {
-            # Clear line first to prevent artifacts
-            Write-Host (" " * ([Console]::WindowWidth - 1)) -NoNewline
-            [Console]::SetCursorPosition(0, [Console]::CursorTop)
-
             $checkbox = if ($selected[$i]) { "[✔]" } else { "[ ]" }
             $color = if ($selected[$i]) { "Green" } else { "White" }
+            $paddedOption = $Options[$i].PadRight($maxWidth)
 
             if ($i -eq $cursor) {
                 Write-Host " ➔ " -NoNewline -ForegroundColor Blue
                 Write-Host $checkbox -NoNewline -ForegroundColor $color
-                Write-Host " $($Options[$i])" -ForegroundColor Cyan
+                Write-Host " $paddedOption" -ForegroundColor Cyan
             } else {
                 Write-Host "   " -NoNewline
                 Write-Host $checkbox -NoNewline -ForegroundColor $color
-                Write-Host " $($Options[$i])" -ForegroundColor Gray
+                Write-Host " $paddedOption" -ForegroundColor Gray
             }
         }
     }
@@ -145,12 +153,12 @@ function Install-Packages {
     if ($selected_pkgs.Count -gt 0) {
         Log-Message "Instalando pacotes via Winget..." "Green"
         foreach ($pkg in $selected_pkgs) {
-            Log-Message "Instalando $pkg..." "Cyan"
+            Log-Message "Instalando ${pkg}..." "Cyan"
             try {
-                winget install --id $pkg --silent --accept-package-agreements --accept-source-agreements | Out-Null
-                Log-Message "$pkg instalado com sucesso!" "Green"
+                winget install --id ${pkg} --silent --accept-package-agreements --accept-source-agreements | Out-Null
+                Log-Message "${pkg} instalado com sucesso!" "Green"
             } catch {
-                Log-Message "Falha ao instalar $pkg: $_" "Red"
+                Log-Message "Falha ao instalar ${pkg}: $_" "Red"
             }
         }
     } else {
@@ -234,7 +242,7 @@ function Setup-Dotfiles {
     $stowScript = Join-Path $PSScriptRoot "windows-stow.ps1"
     if (Test-Path $stowScript) {
         foreach ($pkg in $selected_stow) {
-            Log-Message "Linkando pacote via windows-stow: $pkg..." "Cyan"
+            Log-Message "Linkando pacote via windows-stow: ${pkg}..." "Cyan"
             & $stowScript -Package $pkg
         }
     } else {
