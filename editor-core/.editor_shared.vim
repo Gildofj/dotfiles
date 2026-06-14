@@ -30,6 +30,14 @@ set splitright                    " Split vertical windows right
 " Clipboard & Mouse
 set mouse=a                       " Enable mouse interaction
 
+" Highly performant yank-only clipboard sync for Vim and Neovim
+if has('autocmd') && (has('clipboard') || has('nvim'))
+  augroup shared_clipboard
+    autocmd!
+    autocmd TextYankPost * if v:event.operator ==# 'y' && empty(v:event.regname) | call setreg('+', v:event.regcontents, v:event.regtype) | endif
+  augroup END
+endif
+
 " Keymaps
 let mapleader = " "
 let maplocalleader = "\\"
