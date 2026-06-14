@@ -1,4 +1,4 @@
-#Requires -RunAsAdministrator
+# Elevates privileges automatically if not running as Administrator
 
 # ============================================================================
 # Windows Smart Setup Script (windows-setup.ps1)
@@ -16,12 +16,47 @@ function Log-Message {
     $formattedMessage | Out-File -FilePath $logFile -Append -Encoding utf8
 }
 
-# Check Administrator privileges
+# Check Administrator privileges and elevate if needed
 $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 if (-not $isAdmin) {
-    Log-Message "Este script precisa ser executado como Administrador para criar os links simbólicos de forma segura." "Red"
-    Log-Message "Por favor, abra o PowerShell como Administrador e execute novamente." "Red"
-    Exit 1
+    Log-Message "Este script precisa ser executado como Administrador." "Yellow"
+    Log-Message "Solicitando autorizacao para elevar privilegios (UAC)..." "Cyan"
+    try {
+        Start-Process powershell.exe -ArgumentList "-NoProfile -NoExit -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -WorkingDirectory $PSScriptRoot -Verb RunAs
+        Exit 0
+    } catch {
+        Log-Message "Falha ao solicitar elevacao de privilegios: $_" "Red"
+        Log-Message "Por favor, abra o PowerShell como Administrador e execute novamente." "Red"
+        Exit 1
+    }
+}
+
+# Unicode Support Detection & Formatting Symbols (ASCII Safe)
+function Test-UnicodeSupport {
+    if ($env:WT_SESSION -or $env:TERM_PROGRAM -or $env:TERM -or $env:ALACRITTY_LOG -or $env:WEZTERM_UNIX_SOCKET) {
+        return $true
+    }
+    if ([Console]::OutputEncoding.CodePage -eq 65001) {
+        return $true
+    }
+    return $false
+}
+
+$supportsUnicode = Test-UnicodeSupport
+
+if ($supportsUnicode) {
+    try {
+        [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+    } catch {}
+    $cursorIndicator = " " + [char]0x2794 + " " # " ➔ "
+    $emptyIndicator  = "   "
+    $symCheck        = [char]0x2714             # ✔
+    $symNavHelp      = "Use [" + [char]0x2191 + "/" + [char]0x2193 + "] para navegar, [Espaco] para marcar/desmarcar, [Enter] para confirmar."
+} else {
+    $cursorIndicator = " > "
+    $emptyIndicator  = "   "
+    $symCheck        = "X"
+    $symNavHelp      = "Use [UP/DOWN] para navegar, [Espaco] para marcar/desmarcar, [Enter] para confirmar."
 }
 
 # Interactive confirmation helper
@@ -58,7 +93,7 @@ function Prompt-MultiSelect {
     [Console]::CursorVisible = $false
 
     Write-Host "`n$Title" -ForegroundColor Cyan
-    Write-Host "Use [↑/↓] para navegar, [Espaço] para marcar/desmarcar, [Enter] para confirmar." -ForegroundColor DarkGray
+    Write-Host $symNavHelp -ForegroundColor DarkGray
 
     # Pre-allocate blank lines to prevent scrolling issues when updating the menu
     for ($i = 0; $i -lt $numOptions; $i++) {
@@ -77,16 +112,16 @@ function Prompt-MultiSelect {
     function Render-Options {
         [Console]::SetCursorPosition(0, $startRow)
         for ($i = 0; $i -lt $numOptions; $i++) {
-            $checkbox = if ($selected[$i]) { "[✔]" } else { "[ ]" }
+            $checkbox = if ($selected[$i]) { "[$symCheck]" } else { "[ ]" }
             $color = if ($selected[$i]) { "Green" } else { "White" }
             $paddedOption = $Options[$i].PadRight($maxWidth)
 
             if ($i -eq $cursor) {
-                Write-Host " ➔ " -NoNewline -ForegroundColor Blue
+                Write-Host $cursorIndicator -NoNewline -ForegroundColor Blue
                 Write-Host $checkbox -NoNewline -ForegroundColor $color
                 Write-Host " $paddedOption" -ForegroundColor Cyan
             } else {
-                Write-Host "   " -NoNewline
+                Write-Host $emptyIndicator -NoNewline
                 Write-Host $checkbox -NoNewline -ForegroundColor $color
                 Write-Host " $paddedOption" -ForegroundColor Gray
             }
@@ -144,11 +179,11 @@ $WINGET_PACKAGES = @(
 # Install packages
 function Install-Packages {
     if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
-        Log-Message "[Aviso] 'winget' não foi encontrado neste sistema. Pulando a instalação de pacotes." "Yellow"
+        Log-Message "[Aviso] 'winget' nao foi encontrado neste sistema. Pulando a instalacao de pacotes." "Yellow"
         return
     }
 
-    $selected_pkgs = Prompt-MultiSelect "Selecione quais ferramentas você deseja instalar via Winget:" $WINGET_PACKAGES
+    $selected_pkgs = Prompt-MultiSelect "Selecione quais ferramentas voce deseja instalar via Winget:" $WINGET_PACKAGES
     
     if ($selected_pkgs.Count -gt 0) {
         Log-Message "Instalando pacotes via Winget..." "Green"
@@ -162,7 +197,7 @@ function Install-Packages {
             }
         }
     } else {
-        Log-Message "Nenhum pacote selecionado para instalação." "Gray"
+        Log-Message "Nenhum pacote selecionado para instalacao." "Gray"
     }
 }
 
@@ -179,7 +214,7 @@ $STOW_PACKAGES = @(
 
 # Setup dotfiles deploying
 function Setup-Dotfiles {
-    $selected_stow = Prompt-MultiSelect "Selecione quais pacotes você deseja configurar (linkar para o Home):" $STOW_PACKAGES
+    $selected_stow = Prompt-MultiSelect "Selecione quais pacotes voce deseja configurar (linkar para o Home):" $STOW_PACKAGES
 
     if ($selected_stow.Count -eq 0) {
         Log-Message "Nenhum pacote selecionado para linkar." "Gray"
@@ -189,12 +224,12 @@ function Setup-Dotfiles {
     # Dependency checking: if nvim or vim is selected, ensure editor-core is stowed first
     if ($selected_stow -contains "nvim" -or $selected_stow -contains "vim") {
         if (-not ($selected_stow -contains "editor-core")) {
-            Log-Message "[Dependência] Vim/Neovim selecionados. Adicionando 'editor-core' automaticamente..." "Cyan"
+            Log-Message "[Dependencia] Vim/Neovim selecionados. Adicionando 'editor-core' automaticamente..." "Cyan"
             $selected_stow.Insert(0, "editor-core")
         }
     }
 
-    Log-Message "Iniciando a configuração dos pacotes: [$(($selected_stow) -join ', ')]..." "Green"
+    Log-Message "Iniciando a configuracao dos pacotes: [$(($selected_stow) -join ', ')]..." "Green"
 
     # Conflicting files mapping (Real files, not symlinks, to be cleaned up safely)
     $package_files = @{
@@ -231,7 +266,7 @@ function Setup-Dotfiles {
             if (Test-Path $dir) {
                 $item = Get-Item $dir -Force
                 if ($item.LinkType -ne "SymbolicLink") {
-                    Log-Message "Removendo diretório existente real $dir do pacote $config..." "Yellow"
+                    Log-Message "Removendo diretorio existente real $dir do pacote $config..." "Yellow"
                     Remove-Item $dir -Recurse -Force
                 }
             }
@@ -246,24 +281,24 @@ function Setup-Dotfiles {
             & $stowScript -Package $pkg
         }
     } else {
-        Log-Message "Erro: Não foi possível encontrar o script 'windows-stow.ps1' na raiz!" "Red"
+        Log-Message "Erro: Nao foi possivel encontrar o script 'windows-stow.ps1' na raiz!" "Red"
     }
 }
 
 # Main workflow
 function Main {
-    Log-Message "=== Iniciando Setup de Máquina Windows ===" "Cyan"
+    Log-Message "=== Iniciando Setup de Maquina Windows ===" "Cyan"
     
     if (Ask-YesNo "Deseja instalar as ferramentas de sistema recomendadas via Winget?") {
         Install-Packages
     }
 
-    if (Ask-YesNo "Deseja linkar seus arquivos de configuração (dotfiles) usando o Stow Manager?") {
+    if (Ask-YesNo "Deseja linkar seus arquivos de configuracao (dotfiles) usando o Stow Manager?") {
         Setup-Dotfiles
     }
 
     Log-Message "=== Setup do Windows finalizado! ===" "Green"
-    Log-Message "Por favor, reinicie seu terminal para aplicar todas as mudanças." "Yellow"
+    Log-Message "Por favor, reinicie seu terminal para aplicar todas as mudancas." "Yellow"
 }
 
 # Run setup
